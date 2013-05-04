@@ -1,3 +1,7 @@
+getopt 1.19.2
+=============
+* Project website moved to https://github.com/trevorld/getopt
+
 getopt 1.19.1
 =============
 * If a passed in option matches multiple options in the getopt specification but matches one exactly
