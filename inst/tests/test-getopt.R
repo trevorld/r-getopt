@@ -1,14 +1,3 @@
-library("testthat")
-library("getopt")
-sort_list <- function(unsorted_list) {
-    for(ii in seq(along=unsorted_list)) {
-        if(is.list(unsorted_list[[ii]])) {
-            unsorted_list[[ii]] <- sort_list(unsorted_list[[ii]])
-        }
-    }
-    unsorted_list[sort(names(unsorted_list))] 
-}
-
 context("Testing getopt")
 test_that("getopt works as expected", {
     spec = matrix(c(
@@ -92,3 +81,8 @@ test_that("don't throw error if multiple matches match one argument fully", {
     expect_equal(getopt(spec, c('--foo')), sort_list(list(ARGS=character(0), foo=TRUE)))
 })
 
+context("Test sort_list")
+test_that("sort_list works as expected", {
+    expect_equal(sort_list(list(a = 3, b = 2)), sort_list(list(b = 2, a = 3)))
+    expect_false(identical(sort_list(list(b = 3, a = 2)), list(b = 3, a = 2)))
+})
