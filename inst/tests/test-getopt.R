@@ -58,26 +58,27 @@ test_that("getopt works as expected", {
       'market'   , 'm', 1, "character",
       'threshold', 't', 1, "double"
     );
+    spec2 <- matrix(spec, ncol=4, byrow=TRUE)
     # should give warning is spec is not matrix
     expect_that(getopt(spec, c('--date','20080421','--market','YM','--getdata')), gives_warning());
-    expect_equal(sort_list(getopt(spec, c('--date','20080421','--market','YM','--getdata'))),
+    expect_equal(sort_list(getopt(spec2, c('--date','20080421','--market','YM','--getdata'))),
             sort_list(list(ARGS=character(0), date='20080421', market='YM', getdata=TRUE)))
-    expect_equal(sort_list(getopt(spec, c('--date','20080421','--market','YM','--getdata'))),
-            sort_list(getopt(spec, c('--date','20080421','--getdata','--market','YM'))));
-    expect_that(getopt(spec, c('--date','20080421','--getdata','--market','YM'),debug=TRUE), 
+    expect_equal(sort_list(getopt(spec2, c('--date','20080421','--market','YM','--getdata'))),
+            sort_list(getopt(spec2, c('--date','20080421','--getdata','--market','YM'))));
+    expect_that(getopt(spec2, c('--date','20080421','--getdata','--market','YM'),debug=TRUE), 
             prints_text("processing "));
-    expect_that(print(getopt(spec, c('--date','20080421','--getdata','--market','YM'),usage=TRUE)),
+    expect_that(print(getopt(spec2, c('--date','20080421','--getdata','--market','YM'),usage=TRUE)),
             prints_text("Usage: "));
 })
 test_that("don't throw error if multiple matches match one argument fully", {
     # test if partial name matches fully, 
     # still throw error if multiple matches and doesn't match both fully
     # feature request from Jonas Zimmermann
-    spec = c(
+    spec = matrix(c(
       'foo'      , 'f', 0, "logical",
       'foobar'   , 'b', 0, "logical",
       'biz'      , 'z', 0, "logical"
-      )
+      ), ncol=4, byrow=TRUE)
     expect_that(getopt(spec, c('--fo')), throws_error())
     expect_equal(getopt(spec, c('--foo')), sort_list(list(ARGS=character(0), foo=TRUE)))
 })
