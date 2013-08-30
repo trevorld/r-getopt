@@ -48,13 +48,14 @@
 #' sharing a single leading ``-'', but only the final \emph{short flag} is able
 #' to have a corresponding \emph{argument}.
 #'
-#' Many users wonder whether they should use the getopt package or optparse package
+#' Many users wonder whether they should use the getopt package, optparse package, 
+#' or argparse package.
 #' Here is some of the major differences:
 #'
 #' Features available in \code{getopt} unavailable in \code{optparse}
 #'
 #' 1. As well as allowing one to specify options that take either
-#'      no argument or a required argument,
+#'      no argument or a required argument like \code{optparse},
 #'    \code{getopt} also allows one to specify option with an optional argument.
 #' 
 #' Some features implemented in \code{optparse} package unavailable in \code{getopt}
@@ -67,9 +68,9 @@
 #' 3. Option to specify default arguments for options as well the
 #'    variable name to store option values
 #'
-#' There is also new package \code{argparse} which contains all the features
-#' of both getopt and optparse but which has a dependency on Python (>= 2.7)
-#' and has not been used in production for a few years 
+#' There is also new package \code{argparse} introduced in 2012 which contains
+#' all the features of both getopt and optparse but which has a dependency on
+#' Python 2.7 or 3.2+ and has not been used in production since 2008 or 2009
 #' like the getopt and optparse packages.
 #'
 #' Some Features unlikely to be implemented in \code{getopt}:
