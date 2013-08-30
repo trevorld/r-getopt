@@ -1,5 +1,6 @@
 getopt 1.19.2
 =============
+* Type of "numeric" in spec automatically cast to "double"
 * Project website moved to https://github.com/trevorld/getopt
 
 getopt 1.19.1

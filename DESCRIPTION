@@ -9,11 +9,12 @@ URL: https://github.com/trevorld/getopt
 BugReports: https://github.com/trevorld/getopt/issues
 Description: Package designed to be used with Rscript to write
     ``#!'' shebang scripts that accept short and long flags/options.
-    Many users will prefer using instead the package optparse
+    Many users will prefer using instead the packages optparse or argparse
     which adds extra features (automatically generated help option and usage,
-    support for default values, basic positional argument support).
+    support for default values, positional argument support).
 License: GPL (>= 2)
 Suggests:
     testthat
 Collate:
     'getopt.R'
+    'utils.R'

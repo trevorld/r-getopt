@@ -1,3 +1,18 @@
+# Copyright (c) 2008-2010 Allen Day
+# Copyright (c) 2011-2013 Trevor L. Davis <trevor.l.davis@stanford.edu>  
+#  
+#  This file is free software: you may copy, redistribute and/or modify it  
+#  under the terms of the GNU General Public License as published by the  
+#  Free Software Foundation, either version 2 of the License, or (at your  
+#  option) any later version.  
+#  
+#  This file is distributed in the hope that it will be useful, but  
+#  WITHOUT ANY WARRANTY; without even the implied warranty of  
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  
+#  General Public License for more details.  
+#  
+#  You should have received a copy of the GNU General Public License  
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 #' C-like getopt behavior
 #' 
 #' getopt is primarily intended to be used with ``\link{Rscript}''.  It
@@ -99,6 +114,7 @@
 #' \link{storage.mode}.  A multi-\link{character} string.  This only considered
 #' for same-row Column 3 values of 1,2.  Possible values: \link{logical},
 #' \link{integer}, \link{double}, \link{complex}, \link{character}.
+#' If \link{numeric} is encountered then it will be converted to double.
 #' 
 #' Column 5 (optional): A brief description of the purpose of the option.
 #' 
@@ -216,6 +232,8 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
   if ( length(na.omit(unique(spec[,col.short.name]))) != length(na.omit(spec[,col.short.name])) ) {
     stop(paste('redundant short names for flags (column ',col.short.name,').',sep=''));
   }
+  # convert numeric type to double type
+  spec[,4] <- gsub("numeric", "double", spec[,4])
 
   # if usage=TRUE, don't process opt, but generate a usage string from the data in spec
   if ( usage ) {
@@ -445,19 +463,4 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
     i = i+1;
   }
   return(result);
-}
-
-#' Returns file name of calling Rscript
-#'
-#' \code{get_Rscript_filename} returns the file name of calling Rscript 
-#' @return A string with the filename of the calling script.
-#'      If not found (i.e. you are in a interactive session) returns NA.
-#'
-#' @export
-get_Rscript_filename <- function() {
-    prog <- sub("--file=", "", grep("--file=", commandArgs(), value=TRUE)[1])
-    if( .Platform$OS.type == "windows") { 
-        prog <- gsub("\\\\", "\\\\\\\\", prog)
-    }
-    prog
 }

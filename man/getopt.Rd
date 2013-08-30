@@ -30,7 +30,8 @@
   multi-\link{character} string.  This only considered for
   same-row Column 3 values of 1,2.  Possible values:
   \link{logical}, \link{integer}, \link{double},
-  \link{complex}, \link{character}.
+  \link{complex}, \link{character}. If \link{numeric} is
+  encountered then it will be converted to double.
 
   Column 5 (optional): A brief description of the purpose
   of the option.

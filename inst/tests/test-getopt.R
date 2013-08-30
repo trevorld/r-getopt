@@ -51,6 +51,7 @@ test_that("getopt works as expected", {
             sort_list(list(ARGS=character(0), verbose=1, mean=5, sd=5)));
     expect_equal(sort_list(getopt(spec, c('--verbose', '--mean=5', '--sd', '5'))),
             sort_list(getopt(spec, c('--mean=5', '--sd', '5', '--verbose'))));
+
     spec = c(
       'date'     , 'd', 1, "character",
       'help'     , 'h', 0, "logical",
@@ -70,6 +71,14 @@ test_that("getopt works as expected", {
     expect_that(print(getopt(spec2, c('--date','20080421','--getdata','--market','YM'),usage=TRUE)),
             prints_text("Usage: "));
 })
+test_that("numeric is cast to double", {
+    # Feature reported upstream (optparse) by Miroslav Posta
+    spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
+    getopt(spec, c("-c", "-55"))
+    spec = matrix(c("count", "c", 1, "numeric"), ncol=4, byrow=TRUE)
+    getopt(spec, c("-c", "-55.0"))
+})
+
 test_that("don't throw error if multiple matches match one argument fully", {
     # test if partial name matches fully, 
     # still throw error if multiple matches and doesn't match both fully
