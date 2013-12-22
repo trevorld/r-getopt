@@ -1,4 +1,3 @@
 library("testthat")
-library("getopt")
 
-test_package("getopt")
+test_check("getopt")
