@@ -6,6 +6,8 @@ Author: Allen Day.
     Contributions from Trevor L Davis.
 Maintainer: Trevor L Davis <trevor.l.davis@stanford.edu>
 URL: https://github.com/trevorld/getopt
+Imports:
+    stats
 BugReports: https://github.com/trevorld/getopt/issues
 Description: Package designed to be used with Rscript to write
     ``#!'' shebang scripts that accept short and long flags/options.
@@ -15,6 +17,3 @@ Description: Package designed to be used with Rscript to write
 License: GPL (>= 2)
 Suggests:
     testthat
-Collate:
-    'getopt.R'
-    'utils.R'
