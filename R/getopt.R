@@ -179,6 +179,8 @@
 #' 
 #' #signal success and exit.
 #' #q(status=0);
+#' 
+#' @importFrom stats na.omit
 getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(),usage=FALSE,debug=FALSE) {
 
   # littler compatibility - map argv vector to opt
