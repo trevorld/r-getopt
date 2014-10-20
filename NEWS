@@ -1,3 +1,8 @@
+getopt 1.20.1
+=============
+* Now explicitly imports the ``na.omit`` method from the ``stats`` package.
+  Thanks Derrick Oswald for bug report.
+
 getopt 1.20.0
 =============
 * Type of "numeric" in spec automatically cast to "double".  
