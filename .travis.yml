@@ -1,0 +1,14 @@
+language: r
+sudo: required
+warnings_are_errors: true
+before_install: echo "options(repos = c(CRAN='http://cran.rstudio.com'))" > ~/.Rprofile
+r_binary_packages:
+    - testthat
+r_github_packages:
+    - jimhester/covr
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+after_success:
+  - Rscript -e 'library(covr);codecov()'
