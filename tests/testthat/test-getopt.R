@@ -86,6 +86,12 @@ test_that("negative numbers are handled correctly", {
     expect_equal(getopt(spec, c("--count", "-1e5"))$count, -1e5)
 })
 
+test_that("more helpful warnings upon incorrect input", {
+    # Give more pointed warning upon wildly incorrect input
+    spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
+    expect_warning(getopt(spec, c("-c", "hello"))$count, paste("integer expected, got", dQuote("hello")))
+})
+
 test_that("don't throw error if multiple matches match one argument fully", {
     # test if partial name matches fully, 
     # still throw error if multiple matches and doesn't match both fully
