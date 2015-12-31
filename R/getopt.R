@@ -398,12 +398,12 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
         if ( substr(peek.optstring, 1, 1) != '-' |
 	  #match negative double
 	  ( substr(peek.optstring, 1, 1) == '-'
-	  & regexpr('^-[0123456789]*\\.?[0123456789]+$',peek.optstring) > 0
+	  & regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek.optstring) > 0
 	  & spec[current.flag, col.mode]== 'double'
 	  ) |
 	  #match negative integer
 	  ( substr(peek.optstring, 1, 1) == '-'
-	  & regexpr('^-[0123456789]+$',peek.optstring) > 0
+	  & regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek.optstring) > 0
 	  & spec[current.flag, col.mode]== 'integer'
 	  )
 	) {

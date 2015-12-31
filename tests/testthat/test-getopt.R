@@ -68,6 +68,24 @@ test_that("numeric is cast to double", {
     getopt(spec, c("-c", "-55.0"))
 })
 
+test_that("negative numbers are handled correctly", {
+    # Issue if negative number preceded by space instead of '=' reported by Roman Zenka
+    spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("-c", "5"))$count, 5)
+    spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("-c", "-5"))$count, -5)
+    spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("--count=-1E5"))$count, -1E5)
+    spec = matrix(c("count", "c", 1, "double"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("-c", "-5"))$count, -5)
+    spec = matrix(c("count", "c", 1, "double"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("-c", "-1e5"))$count, -1e5)
+    spec = matrix(c("count", "c", 1, "double"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("--count=-1.2e5"))$count, -1.2e5)
+    spec = matrix(c("count", "c", 1, "double"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("--count", "-1e5"))$count, -1e5)
+})
+
 test_that("don't throw error if multiple matches match one argument fully", {
     # test if partial name matches fully, 
     # still throw error if multiple matches and doesn't match both fully
