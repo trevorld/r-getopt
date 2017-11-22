@@ -1,7 +1,7 @@
 Package: getopt
 Type: Package
 Title: C-Like 'getopt' Behavior
-Version: 1.20.1
+Version: 1.20.2
 Author: Allen Day.
     Contributions from Trevor L Davis and Roman Zenka.
 Maintainer: Trevor L Davis <trevor.l.davis@gmail.com>
@@ -17,3 +17,4 @@ Description: Package designed to be used with Rscript to write
 License: GPL (>= 2)
 Suggests:
     testthat
+RoxygenNote: 6.0.1

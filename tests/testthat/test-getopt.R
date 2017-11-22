@@ -110,3 +110,14 @@ test_that("sort_list works as expected", {
     expect_equal(sort_list(list(a = 3, b = 2)), sort_list(list(b = 2, a = 3)))
     expect_false(identical(sort_list(list(b = 3, a = 2)), list(b = 3, a = 2)))
 })
+
+context("Use h flag for non-help")
+test_that("Use h flag for non help", {
+    spec = matrix(c( 'foo' , 'h', 0, "logical"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c('-h')), sort_list(list(ARGS=character(0), foo=TRUE)))
+
+    spec = matrix(c( 'foo' , 'h', 0, "logical", 
+                   'help', 'h', 0, "logical"), ncol=4, byrow=TRUE)
+    expect_error(getopt(spec, c('-h')), "redundant short names for flags")
+})
+

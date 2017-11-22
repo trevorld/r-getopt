@@ -1,5 +1,5 @@
 # Copyright (c) 2008-2010 Allen Day
-# Copyright (c) 2011-2013 Trevor L. Davis <trevor.l.davis@stanford.edu>  
+# Copyright (c) 2011-2015, 2017 Trevor L. Davis <trevor.l.davis@stanford.edu>  
 #  
 #  This file is free software: you may copy, redistribute and/or modify it  
 #  under the terms of the GNU General Public License as published by the  
@@ -180,7 +180,7 @@
 #' #signal success and exit.
 #' #q(status=0)
 #' 
-#' @importMethodsFrom stats na.omit
+#' @import stats 
 getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(),usage=FALSE,debug=FALSE) {
 
   # littler compatibility - map argv vector to opt
@@ -231,10 +231,10 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
 
   #sanity check.  make sure long names are unique, and short names are unique.
   if ( length(unique(spec[,col.long.name])) != length(spec[,col.long.name]) ) {
-    stop(paste('redundant long names for flags (column ',col.long.name,').',sep=''))
+    stop(paste('redundant long names for flags (column ',col.long.name,' of spec matrix).',sep=''))
   }
-  if ( length(na.omit(unique(spec[,col.short.name]))) != length(na.omit(spec[,col.short.name])) ) {
-    stop(paste('redundant short names for flags (column ',col.short.name,').',sep=''))
+  if ( length(stats::na.omit(unique(spec[,col.short.name]))) != length(stats::na.omit(spec[,col.short.name])) ) {
+    stop(paste('redundant short names for flags (column ',col.short.name,' of spec matrix).',sep=''))
   }
   # convert numeric type to double type
   spec[,4] <- gsub("numeric", "double", spec[,4])
