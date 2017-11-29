@@ -4,7 +4,7 @@ getopt 1.20.1
   Thanks Derrick Oswald for bug report.
 * Improved parsing for negative numbers preceded by a space instead of a '=' sign.  
   Thanks Roman Zenka for improved regular expression.
-* Slightly more informative error message if `storage.mode` coercion results in a `NA`.
+* Slightly more informative error message if `storage.mode` coercion results in an `NA`.
   Thanks Roman Zenka for suggestion.
 
 getopt 1.20.0
