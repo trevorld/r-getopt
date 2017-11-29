@@ -218,11 +218,11 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
 
   #spec is a matrix, but it has too few columns.
   } else if ( dim(spec)[2] < ncol ) {
-    stop(paste('"spec" should have at least ",ncol," columns.',sep=''))
+    stop(paste('"spec" should have at least ', ncol, ' columns.',sep=''))
 
   #spec is a matrix, but it has too many columns.
   } else if ( dim(spec)[2] > maxcol ) {
-    stop(paste('"spec" should have no more than ",maxcol," columns.',sep=''))
+    stop(paste('"spec" should have no more than ', maxcol, ' columns.',sep=''))
 
   #spec is a matrix, and it has some optional columns.
   } else if ( dim(spec)[2] != ncol ) {
@@ -468,10 +468,7 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
       } else {
         stop("this should never happen (2).  please inform the author.")
       }
-    #no dangling flag, nothing to do.
-    } else {
-        NULL
-    }
+    } #no dangling flag, nothing to do.
 
     i = i+1
   }

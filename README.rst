@@ -1,17 +1,21 @@
 getopt
 ======
 
-.. image:: http://www.r-pkg.org/badges/version/getopt
-    :target: http://cran.r-project.org/package=getopt
+.. image:: https://www.r-pkg.org/badges/version/getopt
+    :target: https://cran.r-project.org/package=getopt
     :alt: CRAN Status Badge
 
 .. image:: https://travis-ci.org/trevorld/getopt.png?branch=master
-    :target: http://travis-ci.org/trevorld/getopt
+    :target: https://travis-ci.org/trevorld/getopt
     :alt: Build Status
 
 .. image:: https://img.shields.io/codecov/c/github/trevorld/getopt.svg
     :target: https://codecov.io/github/trevorld/getopt?branch=master
     :alt: Coverage Status
+
+.. image:: https://cranlogs.r-pkg.org/badges/getopt
+    :target: https://cran.r-project.org/package=getopt
+    :alt: RStudio CRAN mirror downloads
 
 Package designed to be used with Rscript to write
 "#!"-shebang scripts that accept short and long flags/options.

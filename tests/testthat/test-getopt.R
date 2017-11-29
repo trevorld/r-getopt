@@ -90,6 +90,18 @@ test_that("more helpful warnings upon incorrect input", {
     # Give more pointed warning upon wildly incorrect input
     spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
     expect_warning(getopt(spec, c("-c", "hello"))$count, paste("integer expected, got", dQuote("hello")))
+
+    spec = NULL
+    expect_error(getopt(spec, ""), 'argument "spec" must be non-null.')
+
+    spec = c("foo", "f", 0)
+    expect_error(getopt(spec, ""), 'or a character vector with length divisible by 4, rtfm')
+
+    spec = matrix(c("foo", "f", 0, "integer"), ncol=2)
+    expect_error(getopt(spec, ""), '"spec" should have at least 4 columns.')
+
+    spec = matrix(c("foo", "f", 0, "integer", "bar", "b", 0, "integer"), ncol=8)
+    expect_error(getopt(spec, ""), '"spec" should have no more than 6 columns.')
 })
 
 test_that("don't throw error if multiple matches match one argument fully", {
@@ -109,6 +121,8 @@ context("Test sort_list")
 test_that("sort_list works as expected", {
     expect_equal(sort_list(list(a = 3, b = 2)), sort_list(list(b = 2, a = 3)))
     expect_false(identical(sort_list(list(b = 3, a = 2)), list(b = 3, a = 2)))
+    expect_false(identical(sort_list(list(b = list(b = 3, c = 2), a = 2)), 
+                           list(b = list(c = 2, b = 3), a = 2)))
 })
 
 context("Use h flag for non-help")
@@ -119,5 +133,50 @@ test_that("Use h flag for non help", {
     spec = matrix(c( 'foo' , 'h', 0, "logical", 
                    'help', 'h', 0, "logical"), ncol=4, byrow=TRUE)
     expect_error(getopt(spec, c('-h')), "redundant short names for flags")
+
+    spec = matrix(c( 'foo' , 'f', 0, "logical", 
+                   'foo', 'h', 0, "logical"), ncol=4, byrow=TRUE)
+    expect_error(getopt(spec, c('-h')), "redundant long names for flags")
 })
 
+context("Optional usage strings")
+test_that("Optional usage strings work as expected", {
+    spec = matrix(c(
+      'foo'      , 'f', 0, "logical", "foo usage",
+      'foobar'   , 'b', 1, "character", "foobar usage",
+      'biz'      , 'z', 2, "logical", "biz usage",
+      'number'   , 'n', 1, "numeric", "number usage",
+      'help'     , 'h', 0, "logical", "help"
+      ), ncol=5, byrow=TRUE)
+    expect_output(cat(getopt(spec, usage=TRUE)), "foobar usage")
+})
+
+context("More tests to get coverage up")
+test_that("tests to get coverage up", {
+    spec = matrix(c(
+      'foo'      , 'f', 0, "logical", "foo usage",
+      'foobar'   , 'b', 1, "character", "foobar usage",
+      'biz'      , 'z', 2, "logical", "biz usage",
+      'number'   , 'n', 1, "numeric", "number usage",
+      'help'     , 'h', 0, "logical", "help"
+      ), ncol=5, byrow=TRUE)
+    expect_error(getopt(spec, "--whodunit"), 'long flag "whodunit" is invalid')
+
+    expect_error(getopt(spec, "--foo=4"), 'long flag "foo" accepts no arguments')
+
+    ## expect_error(getopt(spec, c("--foo", "4")), 'long flag "foo" accepts no arguments')
+
+    expect_equal(getopt(spec, "--biz", "4"), sort_list(list(ARGS=character(0), biz=TRUE)))
+
+    expect_warning(getopt(spec, c("-n", "bar")), paste('double expected, got', dQuote("bar")))
+
+    expect_warning(getopt(spec, c("--number=bar")), paste('double expected, got', dQuote("bar")))
+
+    expect_error(getopt(spec, "-n"), 'flag "n" requires an argument')
+
+    expect_error(getopt(spec, "-p"), 'short flag "p" is invalid')
+
+    expect_error(getopt(spec, "-nh"), 'short flag "n" requires an argument, but has none')
+
+    expect_error(getopt(spec, "-fn"), 'flag "n" requires an argument')
+})
