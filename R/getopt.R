@@ -1,5 +1,5 @@
 # Copyright (c) 2008-2010 Allen Day
-# Copyright (c) 2011-2015, 2017 Trevor L. Davis <trevor.l.davis@stanford.edu>  
+# Copyright (c) 2011-2015, 2017-2018 Trevor L. Davis <trevor.l.davis@stanford.edu>  
 #  
 #  This file is free software: you may copy, redistribute and/or modify it  
 #  under the terms of the GNU General Public License as published by the  
@@ -289,7 +289,8 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
       this.flag = NA
       this.argument = NA
       kv = strsplit(optstring, '=')[[1]]
-      if ( !is.na(kv[2]) ) {
+      # if ( !is.na(kv[2]) ) {
+      if ( grepl('=', optstring) ) {
         this.flag = kv[1]
         this.argument = paste(kv[-1], collapse="=")
       } else {
@@ -320,8 +321,11 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
         #otherwise assign the argument to the flag
         } else {
           mode = spec[rowmatch, col.mode]
-          tryCatch(storage.mode(this.argument) <- mode,
+          warning_msg <- tryCatch(storage.mode(this.argument) <- mode,
                    warning = function(w) {warning(paste(mode, "expected, got", dQuote(this.argument)))})
+          if( is.na(this.argument) && !grepl("expected, got",  warning_msg) ) {
+              warning(paste('long flag', this.flag, 'given a bad argument'))
+          }
           result[spec[rowmatch, col.long.name]] = this.argument
 	  i = i + 1
 	  next

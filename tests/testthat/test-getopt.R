@@ -67,6 +67,14 @@ test_that("numeric is cast to double", {
     spec = matrix(c("count", "c", 1, "numeric"), ncol=4, byrow=TRUE)
     getopt(spec, c("-c", "-55.0"))
 })
+test_that("empty strings are handled correctly for mandatory character arguments", {
+    spec = matrix(c("string", "s", 1, "character",
+                    "number", "n", 1, "numeric"), ncol=4, byrow=TRUE)
+    expect_equal(getopt(spec, c("--string=foo"))$string, "foo")
+    expect_equal(getopt(spec, c("--string="))$string, "")
+    expect_warning(getopt(spec, c("--number=")))
+
+})
 
 test_that("negative numbers are handled correctly", {
     # Issue if negative number preceded by space instead of '=' reported by Roman Zenka

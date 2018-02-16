@@ -1,3 +1,7 @@
+getopt 1.20.2
+=============
+* Now allows one to pass an empty string to a character option.
+
 getopt 1.20.1
 =============
 * Now explicitly imports the ``na.omit`` method from the ``stats`` package.
