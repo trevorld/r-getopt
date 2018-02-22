@@ -1,6 +1,7 @@
 getopt 1.20.2
 =============
 * Now allows one to pass an empty string to a character option.
+  Thanks Matthew Flickinger for bug report.
 
 getopt 1.20.1
 =============
