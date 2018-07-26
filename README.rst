@@ -17,6 +17,10 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: RStudio CRAN mirror downloads
 
+.. image:: http://www.repostatus.org/badges/latest/active.svg
+   :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
+   :target: http://www.repostatus.org/#active
+
 Package designed to be used with Rscript to write
 "#!"-shebang scripts that accept short and long flags/options.
 Many users will prefer using instead the package optparse
