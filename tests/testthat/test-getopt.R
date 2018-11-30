@@ -63,9 +63,13 @@ test_that("getopt works as expected", {
 test_that("numeric is cast to double", {
     # Feature reported upstream (optparse) by Miroslav Posta
     spec = matrix(c("count", "c", 1, "integer"), ncol=4, byrow=TRUE)
-    getopt(spec, c("-c", "-55"))
+    opt <- getopt(spec, c("-c", "-55"))
+    expect_equal(typeof(opt$count), "integer")
+
+
     spec = matrix(c("count", "c", 1, "numeric"), ncol=4, byrow=TRUE)
-    getopt(spec, c("-c", "-55.0"))
+    opt <- getopt(spec, c("-c", "-55.0"))
+    expect_equal(typeof(opt$count), "double")
 })
 test_that("empty strings are handled correctly for mandatory character arguments", {
     spec = matrix(c("string", "s", 1, "character",
