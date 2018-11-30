@@ -9,37 +9,37 @@ test_that("getopt works as expected", {
       'mean'   , 'm', 1, "double",
       'sd'     , 's', 1, "double",
       'output' , 'O', 1, "character"
-    ), ncol=4, byrow=TRUE);
+    ), ncol=4, byrow=TRUE)
     expect_equal(sort_list(getopt(spec, c('-c', '-1', '-m', '-1.2'))),
-                    sort_list(list(ARGS=character(0), count=-1, mean=-1.2)));
+                    sort_list(list(ARGS=character(0), count=-1, mean=-1.2)))
     expect_equal(sort_list(getopt(spec, c('-v', '-m', '3'))),
-                    sort_list(list(ARGS=character(0), verbose=1, mean=3)));
+                    sort_list(list(ARGS=character(0), verbose=1, mean=3)))
     expect_equal(sort_list(getopt(spec, c('-m', '3', '-v'))),
-            sort_list(list(ARGS=character(0), mean=3, verbose=1)));
+            sort_list(list(ARGS=character(0), mean=3, verbose=1)))
     expect_equal(sort_list(getopt(spec, c('-m', '3', '-v', '2', '-v'))),
-            sort_list(list(ARGS=character(0), mean=3, verbose=1)));
+            sort_list(list(ARGS=character(0), mean=3, verbose=1)))
     expect_equal(sort_list(getopt(spec, c('-O', '-', '-m', '3'))),
-            sort_list(list(ARGS=character(0), output="-", mean=3)));
+            sort_list(list(ARGS=character(0), output="-", mean=3)))
     expect_equal(sort_list(getopt(spec, c('-O', '-', '-m', '3'))),
-            sort_list(getopt(spec, c('-m', '3', '-O', '-'))));
+            sort_list(getopt(spec, c('-m', '3', '-O', '-'))))
     expect_equal(sort_list(getopt(spec, c('-de'))), 
-            sort_list(getopt(spec, c('-ed'))));
+            sort_list(getopt(spec, c('-ed'))))
     expect_equal(sort_list(getopt(spec, c('-de'))), 
-            sort_list(list(ARGS=character(0), dummy1=TRUE, dummy2=TRUE)));
+            sort_list(list(ARGS=character(0), dummy1=TRUE, dummy2=TRUE)))
     expect_equal(sort_list(getopt(spec, c('-de', '1'))),
-            sort_list(list(ARGS=character(0), dummy1=TRUE, dummy2=NA)));
+            sort_list(list(ARGS=character(0), dummy1=TRUE, dummy2=NA)))
     expect_equal(sort_list(getopt(spec, c('--verbose'))),
-            sort_list(list(ARGS=character(0), verbose=1)));
+            sort_list(list(ARGS=character(0), verbose=1)))
     expect_equal(sort_list(getopt(spec, c('--verbose', '--help'))),
-            sort_list(list(ARGS=character(0), verbose=1, help=TRUE)));
+            sort_list(list(ARGS=character(0), verbose=1, help=TRUE)))
     expect_equal(sort_list(getopt(spec, c('--verbose', '--mean', '5'))),
-            sort_list(list(ARGS=character(0), verbose=1, mean=5)));
+            sort_list(list(ARGS=character(0), verbose=1, mean=5)))
     expect_equal(sort_list(getopt(spec, c('--mean=5'))), 
-            sort_list(list(ARGS=character(0), mean=5)));
+            sort_list(list(ARGS=character(0), mean=5)))
     expect_equal(sort_list(getopt(spec, c('--verbose', '--mean=5', '--sd', '5'))),
-            sort_list(list(ARGS=character(0), verbose=1, mean=5, sd=5)));
+            sort_list(list(ARGS=character(0), verbose=1, mean=5, sd=5)))
     expect_equal(sort_list(getopt(spec, c('--verbose', '--mean=5', '--sd', '5'))),
-            sort_list(getopt(spec, c('--mean=5', '--sd', '5', '--verbose'))));
+            sort_list(getopt(spec, c('--mean=5', '--sd', '5', '--verbose'))))
 
     spec = c(
       'date'     , 'd', 1, "character",
@@ -47,18 +47,18 @@ test_that("getopt works as expected", {
       'getdata'  , 'g', 0, "logical",
       'market'   , 'm', 1, "character",
       'threshold', 't', 1, "double"
-    );
+    )
     spec2 <- matrix(spec, ncol=4, byrow=TRUE)
     # should give warning is spec is not matrix
-    expect_that(getopt(spec, c('--date','20080421','--market','YM','--getdata')), gives_warning());
+    expect_that(getopt(spec, c('--date','20080421','--market','YM','--getdata')), gives_warning())
     expect_equal(sort_list(getopt(spec2, c('--date','20080421','--market','YM','--getdata'))),
             sort_list(list(ARGS=character(0), date='20080421', market='YM', getdata=TRUE)))
     expect_equal(sort_list(getopt(spec2, c('--date','20080421','--market','YM','--getdata'))),
-            sort_list(getopt(spec2, c('--date','20080421','--getdata','--market','YM'))));
+            sort_list(getopt(spec2, c('--date','20080421','--getdata','--market','YM'))))
     expect_that(getopt(spec2, c('--date','20080421','--getdata','--market','YM'),debug=TRUE), 
-            prints_text("processing "));
+            prints_text("processing "))
     expect_that(print(getopt(spec2, c('--date','20080421','--getdata','--market','YM'),usage=TRUE)),
-            prints_text("Usage: "));
+            prints_text("Usage: "))
 })
 test_that("numeric is cast to double", {
     # Feature reported upstream (optparse) by Miroslav Posta
