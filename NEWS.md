@@ -1,3 +1,7 @@
+getopt 1.20.3
+=============
+* Minor documentation and coding style improvements.
+
 getopt 1.20.2
 =============
 * Now allows one to pass an empty string to a character option.

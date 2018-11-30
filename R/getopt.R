@@ -1,5 +1,5 @@
 # Copyright (c) 2008-2010 Allen Day
-# Copyright (c) 2011-2015, 2017-2018 Trevor L. Davis <trevor.l.davis@gmail.com>  
+# Copyright (c) 2011-2018 Trevor L. Davis <trevor.l.davis@gmail.com>  
 #  
 #  This file is free software: you may copy, redistribute and/or modify it  
 #  under the terms of the GNU General Public License as published by the  

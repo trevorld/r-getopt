@@ -5,12 +5,16 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: CRAN Status Badge
 
-.. image:: https://travis-ci.org/trevorld/getopt.png?branch=master
-    :target: https://travis-ci.org/trevorld/getopt
+.. image:: https://travis-ci.org/trevorld/r-getopt.svg?branch=master
+    :target: https://travis-ci.org/trevorld/r-getopt
     :alt: Build Status
 
-.. image:: https://img.shields.io/codecov/c/github/trevorld/getopt.svg
-    :target: https://codecov.io/github/trevorld/getopt?branch=master
+.. image:: https://ci.appveyor.com/api/projects/status/github/trevorld/r-getopt?branch=master&svg=true 
+    :target: https://ci.appveyor.com/project/trevorld/r-getopt
+    :alt: AppVeyor Build Status
+
+.. image:: https://img.shields.io/codecov/c/github/trevorld/r-getopt.svg
+    :target: https://codecov.io/github/trevorld/r-getopt?branch=master
     :alt: Coverage Status
 
 .. image:: https://cranlogs.r-pkg.org/badges/getopt
@@ -21,23 +25,27 @@ getopt
    :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
    :target: http://www.repostatus.org/#active
 
-Package designed to be used with Rscript to write
-"#!"-shebang scripts that accept short and long flags/options.
-Many users will prefer using instead the package optparse
+``getopt`` is an R package designed to be used with ``Rscript`` to write
+"#!"-shebang scripts that accept short and long flags/options.  Many users will
+prefer using instead the package `optparse <github.com/trevorld/r-optparse>`_
 which adds extra features (automatically generated help option and usage,
 support for default values, basic positional argument support).
 
+To install the last version released on CRAN use the following command::
+
+    > install.packages("getopt")
+
 To install the development version use the following command::
 
-  devtools::install_github("getopt", "trevorld")
+    > remotes:install_github("trevorld/r-getopt")
 
-examples
-========
+example
+-------
 
-An example Rscript using getopt::
+An example Rscript using ``getopt``::
 
     #!/path/to/Rscript
-    library('getopt');
+    library('getopt')
     #get options, using the spec as defined by the enclosed list.
     #we read the options from the default: commandArgs(TRUE).
     spec = matrix(c(
@@ -46,14 +54,14 @@ An example Rscript using getopt::
       'count'  , 'c', 1, "integer",
       'mean'   , 'm', 1, "double",
       'sd'     , 's', 1, "double"
-    ), byrow=TRUE, ncol=4);
-    opt = getopt(spec);
+    ), byrow=TRUE, ncol=4)
+    opt = getopt(spec)
     
     # if help was asked for print a friendly message 
     # and exit with a non-zero error code
     if ( !is.null(opt$help) ) {
-      cat(getopt(spec, usage=TRUE));
-      q(status=1);
+      cat(getopt(spec, usage=TRUE))
+      q(status=1)
     }
     
     #set some reasonable defaults for the options that are needed,
@@ -64,11 +72,11 @@ An example Rscript using getopt::
     if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
     
     #print some progress messages to stderr, if requested.
-    if ( opt$verbose ) { write("writing...",stderr()); }
+    if ( opt$verbose ) { write("writing...",stderr()) }
     
     #do some operation based on user input.
-    cat(paste(rnorm(opt$count,mean=opt$mean,sd=opt$sd),collapse="\n"));
-    cat("\n");
+    cat(paste(rnorm(opt$count,mean=opt$mean,sd=opt$sd),collapse="\n"))
+    cat("\n")
     
     #signal success and exit.
-    #q(status=0);
+    #q(status=0)
