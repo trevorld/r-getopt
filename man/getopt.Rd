@@ -5,8 +5,8 @@
 \alias{getopt-package}
 \title{C-like getopt behavior}
 \usage{
-getopt(spec = NULL, opt = commandArgs(TRUE),
-  command = get_Rscript_filename(), usage = FALSE, debug = FALSE)
+getopt(spec = NULL, opt = NULL, command = get_Rscript_filename(),
+  usage = FALSE, debug = FALSE)
 }
 \arguments{
 \item{spec}{The getopt specification, or spec of what options are considered
@@ -35,7 +35,9 @@ The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 and \emph{argument} have very specific meanings in the context of this
 document.  Read the ``Description'' section for definitions.}
 
-\item{opt}{This defaults to the return value of \link{commandArgs}(TRUE).
+\item{opt}{This defaults to the return value of \link{commandArgs}(TRUE) unless 
+   \code{argv} is in the global environment in which case it uses that instead 
+   (this is for compatibility with littler).
 
 If R was invoked directly via the ``R'' command, this corresponds to all
 arguments passed to R after the ``--args'' flag.
@@ -140,8 +142,8 @@ baz" and recover "foo", "bar", "baz" as a list.  Likewise for "my.R foo
 
 #!/path/to/Rscript
 library('getopt')
-#get options, using the spec as defined by the enclosed list.
-#we read the options from the default: commandArgs(TRUE).
+# get options, using the spec as defined by the enclosed list.
+# we read the options from the default: commandArgs(TRUE).
 spec = matrix(c(
   'verbose', 'v', 2, "integer",
   'help'   , 'h', 0, "logical",
@@ -158,22 +160,22 @@ if ( !is.null(opt$help) ) {
   q(status=1)
 }
 
-#set some reasonable defaults for the options that are needed,
-#but were not specified.
+# set some reasonable defaults for the options that are needed,
+# but were not specified.
 if ( is.null(opt$mean    ) ) { opt$mean    = 0     }
 if ( is.null(opt$sd      ) ) { opt$sd      = 1     }
 if ( is.null(opt$count   ) ) { opt$count   = 10    }
 if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 
-#print some progress messages to stderr, if requested.
+# print some progress messages to stderr, if requested.
 if ( opt$verbose ) { write("writing...",stderr()) }
 
-#do some operation based on user input.
+# do some operation based on user input.
 cat(paste(rnorm(opt$count,mean=opt$mean,sd=opt$sd),collapse="\\n"))
 cat("\\n")
 
-#signal success and exit.
-#q(status=0)
+# signal success and exit.
+# q(status=0)
 
 }
 \seealso{

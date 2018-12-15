@@ -17,4 +17,4 @@ Description: Package designed to be used with Rscript to write
 License: GPL (>= 2)
 Suggests:
     covr, testthat
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
