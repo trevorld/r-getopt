@@ -189,6 +189,15 @@ test_that("tests to get coverage up", {
     expect_error(getopt(spec, "-p"), 'short flag "p" is invalid')
 
     expect_error(getopt(spec, "-nh"), 'short flag "n" requires an argument, but has none')
-
     expect_error(getopt(spec, "-fn"), 'flag "n" requires an argument')
+
+    expect_error(getopt(spec, c("--number", 3, 4)), '"4" is not a valid option, or does not support an argument')
+    expect_error(getopt(spec, c("-b")), '"b" requires an argument')
+    expect_error(getopt(spec, c("--foobar")), 'flag "foobar" requires an argument')
+    expect_error(getopt(spec, c("--foobar", "--help")), 'flag "foobar" requires an argument')
+
+    expect_output(getopt(spec, c("-n", "2"), debug=TRUE), "short option: -n")
+    expect_output(getopt(spec, c("-b", "-"), debug=TRUE), 'lone dash')
+    # causes covr::report() to crash even though test() runs fine
+    # expect_warning(getopt(spec, c("-n", "-")), 'double expected, got "-"')  
 })

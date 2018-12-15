@@ -123,7 +123,9 @@
 #' The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 #' and \emph{argument} have very specific meanings in the context of this
 #' document.  Read the ``Description'' section for definitions.
-#' @param opt This defaults to the return value of \link{commandArgs}(TRUE).
+#' @param opt This defaults to the return value of \link{commandArgs}(TRUE) unless 
+#'    \code{argv} is in the global environment in which case it uses that instead 
+#'    (this is for compatibility with littler).
 #' 
 #' If R was invoked directly via the ``R'' command, this corresponds to all
 #' arguments passed to R after the ``--args'' flag.
@@ -145,8 +147,8 @@
 #'
 #' #!/path/to/Rscript
 #' library('getopt')
-#' #get options, using the spec as defined by the enclosed list.
-#' #we read the options from the default: commandArgs(TRUE).
+#' # get options, using the spec as defined by the enclosed list.
+#' # we read the options from the default: commandArgs(TRUE).
 #' spec = matrix(c(
 #'   'verbose', 'v', 2, "integer",
 #'   'help'   , 'h', 0, "logical",
@@ -163,29 +165,33 @@
 #'   q(status=1)
 #' }
 #' 
-#' #set some reasonable defaults for the options that are needed,
-#' #but were not specified.
+#' # set some reasonable defaults for the options that are needed,
+#' # but were not specified.
 #' if ( is.null(opt$mean    ) ) { opt$mean    = 0     }
 #' if ( is.null(opt$sd      ) ) { opt$sd      = 1     }
 #' if ( is.null(opt$count   ) ) { opt$count   = 10    }
 #' if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
 #' 
-#' #print some progress messages to stderr, if requested.
+#' # print some progress messages to stderr, if requested.
 #' if ( opt$verbose ) { write("writing...",stderr()) }
 #' 
-#' #do some operation based on user input.
+#' # do some operation based on user input.
 #' cat(paste(rnorm(opt$count,mean=opt$mean,sd=opt$sd),collapse="\n"))
 #' cat("\n")
 #' 
-#' #signal success and exit.
-#' #q(status=0)
+#' # signal success and exit.
+#' # q(status=0)
 #' 
 #' @import stats 
-getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(),usage=FALSE,debug=FALSE) {
+getopt = function (spec=NULL,opt=NULL,command=get_Rscript_filename(),usage=FALSE,debug=FALSE) {
 
   # littler compatibility - map argv vector to opt
-  if (exists("argv", where = .GlobalEnv, inherits = FALSE)) {
-    opt = get("argv", envir = .GlobalEnv)
+  if (is.null(opt)) {
+      if (exists("argv", where = .GlobalEnv, inherits = FALSE)) {
+        opt = get("argv", envir = .GlobalEnv) #nocov
+      } else {
+        opt = commandArgs(TRUE)
+      }
   }
 
   ncol=4
@@ -359,10 +365,6 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
         if ( length(rowmatch) == 0 ) {
           stop(paste('short flag "', this.flag, '" is invalid', sep=''))
 
-        #short flag is ambiguous, matches too many options
-        } else if ( length(rowmatch) > 1 ) {
-          stop(paste('short flag "', this.flag, '" is ambiguous', sep=''))
-
         #short flag has an argument, but is not the last in a compound flag string
         } else if ( j < length(these.flags) & spec[rowmatch,col.has.argument] == flag.required.argument ) {
           stop(paste('short flag "', this.flag, '" requires an argument, but has none', sep=''))
@@ -428,7 +430,7 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
           # storage.mode(peek.optstring) = spec[current.flag, col.mode]
           mode = spec[current.flag, col.mode]
           tryCatch(storage.mode(peek.optstring) <- mode,
-                   warning = function(w) {warning(paste(mode, "expected, got", dQuote(peek.optstring)))})
+                   warning = function(w) {warning(paste(mode, "expected, got", dQuote(peek.optstring)))}) #nocov 
           result[spec[current.flag, col.long.name]] = peek.optstring
           i = i + 1
 
@@ -449,9 +451,9 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
   	    storage.mode(x) = spec[current.flag, col.mode]
             result[spec[current.flag, col.long.name]] = x
           } else {
-            stop(paste("This should never happen.",
-              "Is your spec argument correct?  Maybe you forgot to set",
-              "ncol=4, byrow=TRUE in your matrix call?"))
+            stop(paste("This should never happen.", #nocov
+              "Is your spec argument correct?  Maybe you forgot to set", #nocov
+              "ncol=4, byrow=TRUE in your matrix call?")) #nocov
 	  }
         }
       #trailing flag without required argument
@@ -470,7 +472,7 @@ getopt = function (spec=NULL,opt=commandArgs(TRUE),command=get_Rscript_filename(
         storage.mode(x) = spec[current.flag, col.mode]
         result[spec[current.flag, col.long.name]] = x
       } else {
-        stop("this should never happen (2).  please inform the author.")
+        stop("this should never happen (2).  please inform the author.") #nocov
       }
     } #no dangling flag, nothing to do.
 

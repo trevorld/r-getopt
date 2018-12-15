@@ -1,6 +1,7 @@
 getopt 1.20.3
 =============
-* Minor documentation and coding style improvements.
+* Now by default ``getopt`` won't override a user specified ``spec`` if ``argv`` is in the global environment.
+  Will continue to use ``argv`` as a default for ``spec`` if it is in the global environment (for ``littler`` compatibility).
 
 getopt 1.20.2
 =============

@@ -1,7 +1,7 @@
 Package: getopt
 Type: Package
 Title: C-Like 'getopt' Behavior
-Version: 1.20.3-1
+Version: 1.20.3-2
 Authors@R: c(person("Trevor L", "Davis", role=c("aut", "cre"), email="trevor.l.davis@gmail.com"),
     person("Allen", "Day", role="aut", comment="Original package author"),
     person("Roman", "Zenka", role="ctb"))
@@ -16,5 +16,5 @@ Description: Package designed to be used with Rscript to write
     support for default values, positional argument support, etc.
 License: GPL (>= 2)
 Suggests:
-    testthat
+    covr, testthat
 RoxygenNote: 6.0.1
