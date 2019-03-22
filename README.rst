@@ -47,7 +47,9 @@ To install the development version use the following command:
 example
 -------
 
-An example Rscript using ``getopt``::
+An example Rscript using ``getopt``:
+
+.. code:: r
 
     #!/path/to/Rscript
     library('getopt')
