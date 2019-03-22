@@ -21,23 +21,28 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: RStudio CRAN mirror downloads
 
-.. image:: http://www.repostatus.org/badges/latest/active.svg
-   :alt: Project Status: Active – The project has reached a stable, usable state and is being actively developed.
-   :target: http://www.repostatus.org/#active
+.. image:: http://www.repostatus.org/badges/latest/inactive.svg
+   :alt: Project Status: Active – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.
+   :target: http://www.repostatus.org/#inactive
 
 ``getopt`` is an R package designed to be used with ``Rscript`` to write
 "#!"-shebang scripts that accept short and long flags/options.  Many users will
-prefer using instead the package `optparse <github.com/trevorld/r-optparse>`_
+prefer using instead the package `optparse <https://github.com/trevorld/r-optparse>`_
 which adds extra features (automatically generated help option and usage,
 support for default values, basic positional argument support).
 
-To install the last version released on CRAN use the following command::
+To install the last version released on CRAN use the following command:
 
-    > install.packages("getopt")
+.. code:: r
 
-To install the development version use the following command::
+    install.packages("getopt")
 
-    > remotes:install_github("trevorld/r-getopt")
+To install the development version use the following command:
+
+.. code:: r
+
+    install.packages("remotes")
+    remotes:install_github("trevorld/r-getopt")
 
 example
 -------
@@ -46,8 +51,8 @@ An example Rscript using ``getopt``::
 
     #!/path/to/Rscript
     library('getopt')
-    #get options, using the spec as defined by the enclosed list.
-    #we read the options from the default: commandArgs(TRUE).
+    # get options, using the spec as defined by the enclosed list.
+    # we read the options from the default: commandArgs(TRUE).
     spec = matrix(c(
       'verbose', 'v', 2, "integer",
       'help'   , 'h', 0, "logical",
@@ -64,19 +69,19 @@ An example Rscript using ``getopt``::
       q(status=1)
     }
     
-    #set some reasonable defaults for the options that are needed,
-    #but were not specified.
+    # set some reasonable defaults for the options that are needed,
+    # but were not specified.
     if ( is.null(opt$mean    ) ) { opt$mean    = 0     }
     if ( is.null(opt$sd      ) ) { opt$sd      = 1     }
     if ( is.null(opt$count   ) ) { opt$count   = 10    }
     if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
     
-    #print some progress messages to stderr, if requested.
+    # print some progress messages to stderr, if requested.
     if ( opt$verbose ) { write("writing...",stderr()) }
     
-    #do some operation based on user input.
+    # do some operation based on user input.
     cat(paste(rnorm(opt$count,mean=opt$mean,sd=opt$sd),collapse="\n"))
     cat("\n")
     
-    #signal success and exit.
-    #q(status=0)
+    # signal success and exit.
+    # q(status=0)
