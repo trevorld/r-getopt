@@ -1,3 +1,6 @@
 CONTRIBUTING
 README.rst
 .travis.yml
+.appveyor.yml
+cran-comments.rst
+revdep
