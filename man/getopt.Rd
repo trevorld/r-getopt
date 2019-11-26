@@ -5,8 +5,13 @@
 \alias{getopt-package}
 \title{C-like getopt behavior}
 \usage{
-getopt(spec = NULL, opt = NULL, command = get_Rscript_filename(),
-  usage = FALSE, debug = FALSE)
+getopt(
+  spec = NULL,
+  opt = NULL,
+  command = get_Rscript_filename(),
+  usage = FALSE,
+  debug = FALSE
+)
 }
 \arguments{
 \item{spec}{The getopt specification, or spec of what options are considered
@@ -35,8 +40,8 @@ The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 and \emph{argument} have very specific meanings in the context of this
 document.  Read the ``Description'' section for definitions.}
 
-\item{opt}{This defaults to the return value of \link{commandArgs}(TRUE) unless 
-   \code{argv} is in the global environment in which case it uses that instead 
+\item{opt}{This defaults to the return value of \link{commandArgs}(TRUE) unless
+   \code{argv} is in the global environment in which case it uses that instead
    (this is for compatibility with littler).
 
 If R was invoked directly via the ``R'' command, this corresponds to all
@@ -90,7 +95,7 @@ subsequent \emph{option}.  \emph{short flags} may be bundled together,
 sharing a single leading ``-'', but only the final \emph{short flag} is able
 to have a corresponding \emph{argument}.
 
-Many users wonder whether they should use the getopt package, optparse package, 
+Many users wonder whether they should use the getopt package, optparse package,
 or argparse package.
 Here is some of the major differences:
 
@@ -153,25 +158,25 @@ spec = matrix(c(
 ), byrow=TRUE, ncol=4)
 opt = getopt(spec)
 
-# if help was asked for print a friendly message 
+# if help was asked for print a friendly message
 # and exit with a non-zero error code
-if ( !is.null(opt$help) ) {
-  cat(getopt(spec, usage=TRUE))
-  q(status=1)
+if (!is.null(opt$help)) {
+  cat(getopt(spec, usage = TRUE))
+  q(status = 1)
 }
 
 # set some reasonable defaults for the options that are needed,
 # but were not specified.
-if ( is.null(opt$mean    ) ) { opt$mean    = 0     }
-if ( is.null(opt$sd      ) ) { opt$sd      = 1     }
-if ( is.null(opt$count   ) ) { opt$count   = 10    }
-if ( is.null(opt$verbose ) ) { opt$verbose = FALSE }
+if (is.null(opt$mean)) opt$mean <- 0
+if (is.null(opt$sd)) opt$sd <- 1
+if (is.null(opt$count)) opt$count <- 10
+if (is.null(opt$verbose)) opt$verbose <- FALSE
 
 # print some progress messages to stderr, if requested.
-if ( opt$verbose ) { write("writing...",stderr()) }
+if (opt$verbose) write("writing...", stderr())
 
 # do some operation based on user input.
-cat(paste(rnorm(opt$count,mean=opt$mean,sd=opt$sd),collapse="\\n"))
+cat(paste(rnorm(opt$count, mean = opt$mean, sd = opt$sd), collapse = "\\n"))
 cat("\\n")
 
 # signal success and exit.
