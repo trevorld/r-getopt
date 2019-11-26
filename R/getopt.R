@@ -183,7 +183,7 @@
 #' # q(status=0)
 #'
 #' @import stats
-getopt <- function(spec = NULL, opt = NULL, command = get_Rscript_filename(), usage = FALSE, debug = FALSE) {
+getopt <- function(spec = NULL, opt = NULL, command = get_Rscript_filename(), usage = FALSE, debug = FALSE) { # nolint
 
   # littler compatibility - map argv vector to opt
   if (is.null(opt)) {
