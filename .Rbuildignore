@@ -1,8 +1,11 @@
 CONTRIBUTING
+Rakefile
 README.rst
+README.html
 ^.appveyor.yml$
 ^.lintr$
 ^.travis.yml$
+^_pkgdown.yml$
 cran-comments.rst
 revdep
 ^\.github$

@@ -5,13 +5,9 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: CRAN Status Badge
 
-.. image:: https://travis-ci.org/trevorld/r-getopt.svg?branch=master
-    :target: https://travis-ci.org/trevorld/r-getopt
-    :alt: Build Status
-
-.. image:: https://ci.appveyor.com/api/projects/status/github/trevorld/r-getopt?branch=master&svg=true 
-    :target: https://ci.appveyor.com/project/trevorld/r-getopt
-    :alt: AppVeyor Build Status
+.. image:: https://github.com/trevorld/r-getopt/workflows/R-CMD-check/badge.svg
+    :target: https://github.com/trevorld/r-getopt/actions
+    :alt: R-CMD-check
 
 .. image:: https://img.shields.io/codecov/c/github/trevorld/r-getopt.svg
     :target: https://codecov.io/github/trevorld/r-getopt?branch=master
@@ -21,9 +17,9 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: RStudio CRAN mirror downloads
 
-.. image:: http://www.repostatus.org/badges/latest/inactive.svg
-   :alt: Project Status: Active – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.
-   :target: http://www.repostatus.org/#inactive
+.. raw:: html
+
+   <img src="man/figures/logo.png" align="right" width="200px" alt="optparse hex sticker">
 
 ``getopt`` is an R package designed to be used with ``Rscript`` to write
 "#!"-shebang scripts that accept short and long flags/options.  Many users will

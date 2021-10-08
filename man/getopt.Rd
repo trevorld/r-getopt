@@ -176,8 +176,8 @@ if (is.null(opt$verbose)) opt$verbose <- FALSE
 if (opt$verbose) write("writing...", stderr())
 
 # do some operation based on user input.
-cat(paste(rnorm(opt$count, mean = opt$mean, sd = opt$sd), collapse = "\\n"))
-cat("\\n")
+cat(paste(rnorm(opt$count, mean = opt$mean, sd = opt$sd), collapse = "\n"))
+cat("\n")
 
 # signal success and exit.
 # q(status=0)

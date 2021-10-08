@@ -1,3 +1,4 @@
+Encoding: UTF-8
 Package: getopt
 Type: Package
 Title: C-Like 'getopt' Behavior
@@ -17,4 +18,4 @@ Description: Package designed to be used with Rscript to write
 License: GPL (>= 2)
 Suggests:
     covr, testthat
-RoxygenNote: 7.0.0
+RoxygenNote: 7.1.1
