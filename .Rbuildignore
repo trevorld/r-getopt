@@ -5,3 +5,6 @@ README.rst
 ^.travis.yml$
 cran-comments.rst
 revdep
+^\.github$
+^pkgdown$
+^raw-data$
