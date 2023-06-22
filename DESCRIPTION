@@ -3,7 +3,9 @@ Package: getopt
 Type: Package
 Title: C-Like 'getopt' Behavior
 Version: 1.20.4
-Authors@R: c(person("Trevor L", "Davis", role=c("aut", "cre"), email="trevor.l.davis@gmail.com"),
+Authors@R: c(person("Trevor L", "Davis", role=c("aut", "cre"),
+             email="trevor.l.davis@gmail.com",
+             comment = c(ORCID = "0000-0001-6341-4639")),
     person("Allen", "Day", role="aut", comment="Original package author"),
     person("Roman", "Zenka", role="ctb"))
 URL: https://github.com/trevorld/r-getopt

@@ -9,13 +9,17 @@ getopt
     :target: https://github.com/trevorld/r-getopt/actions
     :alt: R-CMD-check
 
-.. image:: https://img.shields.io/codecov/c/github/trevorld/r-getopt.svg
-    :target: https://codecov.io/github/trevorld/r-getopt?branch=master
+.. image:: https://codecov.io/github/trevorld/getopt/branch/master/graph/badge.svg
+    :target: https://app.codecov.io/github/trevorld/getopt?branch=master
     :alt: Coverage Status
 
 .. image:: https://cranlogs.r-pkg.org/badges/getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: RStudio CRAN mirror downloads
+
+.. image:: https://tinyverse.netlify.com/badge/getopt
+    :target: https://cran.r-project.org/package=getopt
+    :alt: Number of dependencies
 
 .. raw:: html
 

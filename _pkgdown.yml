@@ -1,4 +1,4 @@
-destination: "/home/trevorld/a/projects/websites/R/getopt/"
+destination: "../../websites/R/getopt/"
 url: "https://trevorldavis.com/R/getopt"
 development:
     mode: auto
