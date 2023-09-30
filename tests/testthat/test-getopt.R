@@ -1,4 +1,3 @@
-context("Testing getopt")
 test_that("getopt works as expected", {
     spec <- matrix(c(
       "verbose", "v", 2, "integer",
@@ -50,15 +49,15 @@ test_that("getopt works as expected", {
     )
     spec2 <- matrix(spec, ncol = 4, byrow = TRUE)
     # should give warning is spec is not matrix
-    expect_that(getopt(spec, c("--date", "20080421", "--market", "YM", "--getdata")), gives_warning())
+    expect_warning(getopt(spec, c("--date", "20080421", "--market", "YM", "--getdata")))
     expect_equal(sort_list(getopt(spec2, c("--date", "20080421", "--market", "YM", "--getdata"))),
             sort_list(list(ARGS = character(0), date = "20080421", market = "YM", getdata = TRUE)))
     expect_equal(sort_list(getopt(spec2, c("--date", "20080421", "--market", "YM", "--getdata"))),
             sort_list(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"))))
-    expect_that(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), debug = TRUE),
-            prints_text("processing "))
-    expect_that(print(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), usage = TRUE)),
-            prints_text("Usage: "))
+    expect_output(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), debug = TRUE),
+            "processing ")
+    expect_output(print(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), usage = TRUE)),
+            "Usage: ")
 })
 test_that("numeric is cast to double", {
     # Feature reported upstream (optparse) by Miroslav Posta
@@ -125,11 +124,10 @@ test_that("don't throw error if multiple matches match one argument fully", {
       "foobar", "b", 0, "logical",
       "biz", "z", 0, "logical"
       ), ncol = 4, byrow = TRUE)
-    expect_that(getopt(spec, c("--fo")), throws_error())
+    expect_error(getopt(spec, c("--fo")))
     expect_equal(getopt(spec, c("--foo")), sort_list(list(ARGS = character(0), foo = TRUE)))
 })
 
-context("Test sort_list")
 test_that("sort_list works as expected", {
     expect_equal(sort_list(list(a = 3, b = 2)), sort_list(list(b = 2, a = 3)))
     expect_false(identical(sort_list(list(b = 3, a = 2)), list(b = 3, a = 2)))
@@ -137,7 +135,6 @@ test_that("sort_list works as expected", {
                            list(b = list(c = 2, b = 3), a = 2)))
 })
 
-context("Use h flag for non-help")
 test_that("Use h flag for non help", {
     spec <- matrix(c("foo", "h", 0, "logical"), ncol = 4, byrow = TRUE)
     expect_equal(getopt(spec, c("-h")), sort_list(list(ARGS = character(0), foo = TRUE)))
@@ -151,7 +148,6 @@ test_that("Use h flag for non help", {
     expect_error(getopt(spec, c("-h")), "redundant long names for flags")
 })
 
-context("Optional usage strings")
 test_that("Optional usage strings work as expected", {
     spec <- matrix(c(
       "foo", "f", 0, "logical", "foo usage",
@@ -163,7 +159,6 @@ test_that("Optional usage strings work as expected", {
     expect_output(cat(getopt(spec, usage = TRUE)), "foobar usage")
 })
 
-context("More tests to get coverage up")
 test_that("tests to get coverage up", {
     spec <- matrix(c(
       "foo", "f", 0, "logical", "foo usage",

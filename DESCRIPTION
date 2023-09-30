@@ -21,3 +21,4 @@ License: GPL (>= 2)
 Suggests:
     covr, testthat
 RoxygenNote: 7.1.1
+Config/testthat/edition: 3
