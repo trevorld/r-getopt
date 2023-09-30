@@ -6,6 +6,7 @@ README.html
 ^.lintr$
 ^.travis.yml$
 ^_pkgdown.yml$
+cran-comments.md
 cran-comments.rst
 revdep
 ^\.github$

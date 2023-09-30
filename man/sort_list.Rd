@@ -13,5 +13,9 @@ sort_list(unsorted_list)
 A sorted list.
 }
 \description{
-\code{sort_list} returns a sorted list
+\code{sort_list()} returns a recursively sorted list
+}
+\examples{
+l <- list(b = 2, a = 1)
+sort_list(l)
 }

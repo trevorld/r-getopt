@@ -16,15 +16,15 @@
 
 #' C-like getopt behavior
 #'
-#' getopt is primarily intended to be used with ``\link{Rscript}''.  It
-#' facilitates writing ``\#!'' shebang scripts that accept short and long
-#' flags/options.  It can also be used from ``R'' directly, but is probably less
+#' `getopt` is primarily intended to be used with `Rscript`.  It
+#' facilitates writing `#!` shebang scripts that accept short and long
+#' flags/options.  It can also be used from `R` directly, but is probably less
 #' useful in this context.
 #'
-#' getopt() returns a \link{list} data structure containing \link{names} of the
-#' flags that were present in the \link{character} \link{vector} passed in under
-#' the \emph{opt} argument.  Each value of the \link{list} is coerced to the
-#' data type specified according to the value of the \emph{spec} argument.  See
+#' [getopt()] returns a list data structure containing names of the
+#' flags that were present in the character vector passed in under
+#' the `opt` argument.  Each value of the list is coerced to the
+#' data type specified according to the value of the `spec` argument.  See
 #' below for details.
 #'
 #' Notes on naming convention:
@@ -39,112 +39,109 @@
 #' with a flag.
 #'
 #' 4. A \emph{long flag} is a type of \emph{flag}, and begins with the string
-#' ``--''.  If the \emph{long flag} has an associated \emph{argument}, it may be
-#' delimited from the \emph{long flag} by either a trailing \emph{=}, or may be
+#' `--`.  If the \emph{long flag} has an associated \emph{argument}, it may be
+#' delimited from the \emph{long flag} by either a trailing `=`, or may be
 #' the subsequent \emph{option}.
 #'
 #' 5. A \emph{short flag} is a type of \emph{flag}, and begins with the string
-#' ``-''.  If a \emph{short flag} has an associated \emph{argument}, it is the
+#' `-`.  If a \emph{short flag} has an associated \emph{argument}, it is the
 #' subsequent \emph{option}.  \emph{short flags} may be bundled together,
-#' sharing a single leading ``-'', but only the final \emph{short flag} is able
+#' sharing a single leading `-`, but only the final \emph{short flag} is able
 #' to have a corresponding \emph{argument}.
 #'
-#' Many users wonder whether they should use the getopt package, optparse package,
-#' or argparse package.
+#' Many users wonder whether they should use the `getopt` package, `optparse` package,
+#' or `argparse` package.
 #' Here is some of the major differences:
 #'
-#' Features available in \code{getopt} unavailable in \code{optparse}
+#' Features available in `getopt` unavailable in `optparse`
 #'
 #' 1. As well as allowing one to specify options that take either
-#'      no argument or a required argument like \code{optparse},
-#'    \code{getopt} also allows one to specify option with an optional argument.
+#'    no argument or a required argument like `optparse`,
+#'    `getopt` also allows one to specify option with an optional argument.
 #'
-#' Some features implemented in \code{optparse} package unavailable in \code{getopt}
+#' Some features implemented in `optparse` package unavailable in `getopt`
 #'
 #' 1. Limited support for capturing positional arguments after the optional arguments
-#' when \code{positional_arguments} set to TRUE in \code{parse_args}
+#' when `positional_arguments` set to `TRUE` in [optparse::parse_args()]
 #'
-#' 2. Automatic generation of an help option and printing of help text when encounters an "-h"
+#' 2. Automatic generation of an help option and printing of help text when encounters an `-h`
 #'
 #' 3. Option to specify default arguments for options as well the
 #'    variable name to store option values
 #'
-#' There is also new package \code{argparse} introduced in 2012 which contains
+#' There is also new package `argparse` introduced in 2012 which contains
 #' all the features of both getopt and optparse but which has a dependency on
-#' Python 2.7 or 3.2+ and has not been used in production since 2008 or 2009
-#' like the getopt and optparse packages.
+#' Python 2.7 or 3.2+.
 #'
-#' Some Features unlikely to be implemented in \code{getopt}:
+#' Some Features unlikely to be implemented in `getopt`:
 #'
-#' 1. Support for multiple, identical flags, e.g. for "-m 3 -v 5 -v", the
-#' trailing "-v" overrides the preceding "-v 5", result is v=TRUE (or equivalent
+#' 1. Support for multiple, identical flags, e.g. for `-m 3 -v 5 -v`, the
+#' trailing `-v` overrides the preceding `-v 5`, result is `v=TRUE` (or equivalent
 #' typecast).
 #'
-#' 2. Support for multi-valued flags, e.g. "--libpath=/usr/local/lib
-#' --libpath=/tmp/foo".
+#' 2. Support for multi-valued flags, e.g. `--libpath=/usr/local/lib
+#' --libpath=/tmp/foo`.
 #'
-#' 3. Support for lists, e.g. "--define os=linux --define os=redhat" would
-#' set result$os$linux=TRUE and result$os$redhat=TRUE.
+#' 3. Support for lists, e.g. `--define os=linux --define os=redhat` would
+#' set `result$os$linux=TRUE` and `result$os$redhat=TRUE`.
 #'
-#' 4. Support for incremental, argument-less flags, e.g. "/path/to/script
-#' -vvv" should set v=3.
+#' 4. Support for incremental, argument-less flags, e.g. `/path/to/script
+#' -vvv` should set `v=3`.
 #'
-#' 5. Support partial-but-unique string match on options, e.g. "--verb" and
-#' "--verbose" both match long flag "--verbose".
+#' 5. Support partial-but-unique string match on options, e.g. `--verb` and
+#' `--verbose` both match long flag `--verbose`.
 #'
 #' 6. No support for mixing in positional arguments or extra arguments that
-#' don't match any options.  For example, you can't do "my.R --arg1 1 foo bar
-#' baz" and recover "foo", "bar", "baz" as a list.  Likewise for "my.R foo
-#' --arg1 1 bar baz".
+#' don't match any options.  For example, you can't do `my.R --arg1 1 foo bar
+#' baz` and recover `foo`, `bar`, `baz` as a list.  Likewise for `my.R foo
+#' --arg1 1 bar baz`.
 #'
 #' @aliases getopt getopt-package
 #' @param spec The getopt specification, or spec of what options are considered
-#' valid.  The specification must be either a 4-5 column \link{matrix}, or a
-#' \link{character} \link{vector} coercible into a 4 column \link{matrix} using
-#' \link{matrix}(x,ncol=4,byrow=TRUE) command.  The \link{matrix}/\link{vector}
+#' valid.  The specification must be either a 4-5 column matrix, or a
+#' character vector coercible into a 4 column matrix using
+#' `matrix(x,ncol=4,byrow=TRUE)` command.  The matrix/vector
 #' contains:
 #'
-#' Column 1: the \emph{long flag} name.  A multi-\link{character} string.
+#' Column 1: the \emph{long flag} name.  A multi-character string.
 #'
-#' Column 2: \emph{short flag} alias of Column 1.  A single-\link{character}
+#' Column 2: \emph{short flag} alias of Column 1.  A single-character
 #' string.
 #'
-#' Column 3: \emph{Argument} mask of the \emph{flag}.  An \link{integer}.
+#' Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
 #' Possible values: 0=no argument, 1=required argument, 2=optional argument.
 #'
 #' Column 4: Data type to which the \emph{flag}'s argument shall be cast using
-#' \link{storage.mode}.  A multi-\link{character} string.  This only considered
-#' for same-row Column 3 values of 1,2.  Possible values: \link{logical},
-#' \link{integer}, \link{double}, \link{complex}, \link{character}.
-#' If \link{numeric} is encountered then it will be converted to double.
+#' [storage.mode()].  A multi-character string.  This only considered
+#' for same-row Column 3 values of 1,2.  Possible values: logical,
+#' integer, double, complex, character.
+#' If numeric is encountered then it will be converted to double.
 #'
 #' Column 5 (optional): A brief description of the purpose of the option.
 #'
 #' The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 #' and \emph{argument} have very specific meanings in the context of this
-#' document.  Read the ``Description'' section for definitions.
-#' @param opt This defaults to the return value of \link{commandArgs}(TRUE) unless
-#'    \code{argv} is in the global environment in which case it uses that instead
-#'    (this is for compatibility with littler).
+#' document.  Read the \dQuote{Description} section for definitions.
+#' @param opt This defaults to the return value of `commandArgs(TRUE)` unless
+#'    `argv` is in the global environment in which case it uses that instead
+#'    (this is for compatibility with `littler`).
 #'
-#' If R was invoked directly via the ``R'' command, this corresponds to all
-#' arguments passed to R after the ``--args'' flag.
+#' If R was invoked directly via the `R` command, this corresponds to all
+#' arguments passed to R after the `--args` flag.
 #'
-#' If R was invoked via the ``\link{Rscript}'' command, this corresponds to all
+#' If R was invoked via the `Rscript` command, this corresponds to all
 #' arguments after the name of the R script file.
 #'
-#' Read about \link{commandArgs} and \link{Rscript} to learn more.
+#' Read about [commandArgs()] and \link{Rscript} to learn more.
 #' @param command The string to use in the usage message as the name of the
 #' script.  See argument \emph{usage}.
-#' @param usage If TRUE, argument \emph{opt} will be ignored and a usage
-#' statement (character string) will be generated and returned from \emph{spec}.
-#' @param debug This is used internally to debug the getopt() function itself.
+#' @param usage If `TRUE`, argument `opt` will be ignored and a usage
+#' statement (character string) will be generated and returned from `spec`.
+#' @param debug This is used internally to debug the `getopt()` function itself.
 #' @author Allen Day
-#' @seealso \code{\link{getopt}}
 #' @keywords data
 #' @export
 #' @examples
-#'
 #' #!/path/to/Rscript
 #' library('getopt')
 #' # get options, using the spec as defined by the enclosed list.
@@ -176,12 +173,10 @@
 #' if (opt$verbose) write("writing...", stderr())
 #'
 #' # do some operation based on user input.
-#' cat(paste(rnorm(opt$count, mean = opt$mean, sd = opt$sd), collapse = "\n"))
-#' cat("\n")
+#' cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
 #'
 #' # signal success and exit.
 #' # q(status=0)
-#'
 #' @import stats
 getopt <- function(spec = NULL, opt = NULL, command = get_Rscript_filename(), usage = FALSE, debug = FALSE) { # nolint
 
@@ -344,7 +339,7 @@ getopt <- function(spec = NULL, opt = NULL, command = get_Rscript_filename(), us
         ### if (spec[rowmatch, col_has_argument] == flag_required_argument) {
         ###  stop(paste('long flag "', this_flag, '" requires an argument', sep = ""))
 
-        # long flag has no attached argument. set flag as present.  
+        # long flag has no attached argument. set flag as present.
         # set current_flag so we can peek ahead later and consume the argument if it's there
         # nolint end
         ###} else {

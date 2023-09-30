@@ -15,136 +15,123 @@ getopt(
 }
 \arguments{
 \item{spec}{The getopt specification, or spec of what options are considered
-valid.  The specification must be either a 4-5 column \link{matrix}, or a
-\link{character} \link{vector} coercible into a 4 column \link{matrix} using
-\link{matrix}(x,ncol=4,byrow=TRUE) command.  The \link{matrix}/\link{vector}
+valid.  The specification must be either a 4-5 column matrix, or a
+character vector coercible into a 4 column matrix using
+\code{matrix(x,ncol=4,byrow=TRUE)} command.  The matrix/vector
 contains:
 
-Column 1: the \emph{long flag} name.  A multi-\link{character} string.
+Column 1: the \emph{long flag} name.  A multi-character string.
 
-Column 2: \emph{short flag} alias of Column 1.  A single-\link{character}
+Column 2: \emph{short flag} alias of Column 1.  A single-character
 string.
 
-Column 3: \emph{Argument} mask of the \emph{flag}.  An \link{integer}.
+Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
 Possible values: 0=no argument, 1=required argument, 2=optional argument.
 
 Column 4: Data type to which the \emph{flag}'s argument shall be cast using
-\link{storage.mode}.  A multi-\link{character} string.  This only considered
-for same-row Column 3 values of 1,2.  Possible values: \link{logical},
-\link{integer}, \link{double}, \link{complex}, \link{character}.
-If \link{numeric} is encountered then it will be converted to double.
+\code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.  This only considered
+for same-row Column 3 values of 1,2.  Possible values: logical,
+integer, double, complex, character.
+If numeric is encountered then it will be converted to double.
 
 Column 5 (optional): A brief description of the purpose of the option.
 
 The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 and \emph{argument} have very specific meanings in the context of this
-document.  Read the ``Description'' section for definitions.}
+document.  Read the \dQuote{Description} section for definitions.}
 
-\item{opt}{This defaults to the return value of \link{commandArgs}(TRUE) unless
-   \code{argv} is in the global environment in which case it uses that instead
-   (this is for compatibility with littler).
+\item{opt}{This defaults to the return value of \code{commandArgs(TRUE)} unless
+\code{argv} is in the global environment in which case it uses that instead
+(this is for compatibility with \code{littler}).
 
-If R was invoked directly via the ``R'' command, this corresponds to all
-arguments passed to R after the ``--args'' flag.
+If R was invoked directly via the \code{R} command, this corresponds to all
+arguments passed to R after the \code{--args} flag.
 
-If R was invoked via the ``\link{Rscript}'' command, this corresponds to all
+If R was invoked via the \code{Rscript} command, this corresponds to all
 arguments after the name of the R script file.
 
-Read about \link{commandArgs} and \link{Rscript} to learn more.}
+Read about \code{\link[=commandArgs]{commandArgs()}} and \link{Rscript} to learn more.}
 
 \item{command}{The string to use in the usage message as the name of the
 script.  See argument \emph{usage}.}
 
-\item{usage}{If TRUE, argument \emph{opt} will be ignored and a usage
-statement (character string) will be generated and returned from \emph{spec}.}
+\item{usage}{If \code{TRUE}, argument \code{opt} will be ignored and a usage
+statement (character string) will be generated and returned from \code{spec}.}
 
-\item{debug}{This is used internally to debug the getopt() function itself.}
+\item{debug}{This is used internally to debug the \code{getopt()} function itself.}
 }
 \description{
-getopt is primarily intended to be used with ``\link{Rscript}''.  It
-facilitates writing ``\#!'' shebang scripts that accept short and long
-flags/options.  It can also be used from ``R'' directly, but is probably less
+\code{getopt} is primarily intended to be used with \code{Rscript}.  It
+facilitates writing \verb{#!} shebang scripts that accept short and long
+flags/options.  It can also be used from \code{R} directly, but is probably less
 useful in this context.
 }
 \details{
-getopt() returns a \link{list} data structure containing \link{names} of the
-flags that were present in the \link{character} \link{vector} passed in under
-the \emph{opt} argument.  Each value of the \link{list} is coerced to the
-data type specified according to the value of the \emph{spec} argument.  See
+\code{\link[=getopt]{getopt()}} returns a list data structure containing names of the
+flags that were present in the character vector passed in under
+the \code{opt} argument.  Each value of the list is coerced to the
+data type specified according to the value of the \code{spec} argument.  See
 below for details.
 
 Notes on naming convention:
-
-1. An \emph{option} is one of the shell-split input strings.
-
-2. A \emph{flag} is a type of \emph{option}.  a \emph{flag} can be defined as
+\enumerate{
+\item An \emph{option} is one of the shell-split input strings.
+\item A \emph{flag} is a type of \emph{option}.  a \emph{flag} can be defined as
 having no \emph{argument} (defined below), a required \emph{argument}, or an
 optional \emph{argument}.
-
-3. An \emph{argument} is a type of \emph{option}, and is the value associated
+\item An \emph{argument} is a type of \emph{option}, and is the value associated
 with a flag.
-
-4. A \emph{long flag} is a type of \emph{flag}, and begins with the string
-``--''.  If the \emph{long flag} has an associated \emph{argument}, it may be
-delimited from the \emph{long flag} by either a trailing \emph{=}, or may be
+\item A \emph{long flag} is a type of \emph{flag}, and begins with the string
+\verb{--}.  If the \emph{long flag} has an associated \emph{argument}, it may be
+delimited from the \emph{long flag} by either a trailing \code{=}, or may be
 the subsequent \emph{option}.
-
-5. A \emph{short flag} is a type of \emph{flag}, and begins with the string
-``-''.  If a \emph{short flag} has an associated \emph{argument}, it is the
+\item A \emph{short flag} is a type of \emph{flag}, and begins with the string
+\code{-}.  If a \emph{short flag} has an associated \emph{argument}, it is the
 subsequent \emph{option}.  \emph{short flags} may be bundled together,
-sharing a single leading ``-'', but only the final \emph{short flag} is able
+sharing a single leading \code{-}, but only the final \emph{short flag} is able
 to have a corresponding \emph{argument}.
+}
 
-Many users wonder whether they should use the getopt package, optparse package,
-or argparse package.
+Many users wonder whether they should use the \code{getopt} package, \code{optparse} package,
+or \code{argparse} package.
 Here is some of the major differences:
 
 Features available in \code{getopt} unavailable in \code{optparse}
-
-1. As well as allowing one to specify options that take either
-     no argument or a required argument like \code{optparse},
-   \code{getopt} also allows one to specify option with an optional argument.
+\enumerate{
+\item As well as allowing one to specify options that take either
+no argument or a required argument like \code{optparse},
+\code{getopt} also allows one to specify option with an optional argument.
+}
 
 Some features implemented in \code{optparse} package unavailable in \code{getopt}
-
-1. Limited support for capturing positional arguments after the optional arguments
-when \code{positional_arguments} set to TRUE in \code{parse_args}
-
-2. Automatic generation of an help option and printing of help text when encounters an "-h"
-
-3. Option to specify default arguments for options as well the
-   variable name to store option values
+\enumerate{
+\item Limited support for capturing positional arguments after the optional arguments
+when \code{positional_arguments} set to \code{TRUE} in \code{\link[optparse:parse_args]{optparse::parse_args()}}
+\item Automatic generation of an help option and printing of help text when encounters an \code{-h}
+\item Option to specify default arguments for options as well the
+variable name to store option values
+}
 
 There is also new package \code{argparse} introduced in 2012 which contains
 all the features of both getopt and optparse but which has a dependency on
-Python 2.7 or 3.2+ and has not been used in production since 2008 or 2009
-like the getopt and optparse packages.
+Python 2.7 or 3.2+.
 
 Some Features unlikely to be implemented in \code{getopt}:
-
-1. Support for multiple, identical flags, e.g. for "-m 3 -v 5 -v", the
-trailing "-v" overrides the preceding "-v 5", result is v=TRUE (or equivalent
+\enumerate{
+\item Support for multiple, identical flags, e.g. for \verb{-m 3 -v 5 -v}, the
+trailing \code{-v} overrides the preceding \verb{-v 5}, result is \code{v=TRUE} (or equivalent
 typecast).
-
-2. Support for multi-valued flags, e.g. "--libpath=/usr/local/lib
---libpath=/tmp/foo".
-
-3. Support for lists, e.g. "--define os=linux --define os=redhat" would
-set result$os$linux=TRUE and result$os$redhat=TRUE.
-
-4. Support for incremental, argument-less flags, e.g. "/path/to/script
--vvv" should set v=3.
-
-5. Support partial-but-unique string match on options, e.g. "--verb" and
-"--verbose" both match long flag "--verbose".
-
-6. No support for mixing in positional arguments or extra arguments that
-don't match any options.  For example, you can't do "my.R --arg1 1 foo bar
-baz" and recover "foo", "bar", "baz" as a list.  Likewise for "my.R foo
---arg1 1 bar baz".
+\item Support for multi-valued flags, e.g. \verb{--libpath=/usr/local/lib --libpath=/tmp/foo}.
+\item Support for lists, e.g. \verb{--define os=linux --define os=redhat} would
+set \code{result$os$linux=TRUE} and \code{result$os$redhat=TRUE}.
+\item Support for incremental, argument-less flags, e.g. \verb{/path/to/script -vvv} should set \code{v=3}.
+\item Support partial-but-unique string match on options, e.g. \code{--verb} and
+\code{--verbose} both match long flag \code{--verbose}.
+\item No support for mixing in positional arguments or extra arguments that
+don't match any options.  For example, you can't do \verb{my.R --arg1 1 foo bar baz} and recover \code{foo}, \code{bar}, \code{baz} as a list.  Likewise for \verb{my.R foo --arg1 1 bar baz}.
+}
 }
 \examples{
-
 #!/path/to/Rscript
 library('getopt')
 # get options, using the spec as defined by the enclosed list.
@@ -176,15 +163,10 @@ if (is.null(opt$verbose)) opt$verbose <- FALSE
 if (opt$verbose) write("writing...", stderr())
 
 # do some operation based on user input.
-cat(paste(rnorm(opt$count, mean = opt$mean, sd = opt$sd), collapse = "\n"))
-cat("\n")
+cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
 
 # signal success and exit.
 # q(status=0)
-
-}
-\seealso{
-\code{\link{getopt}}
 }
 \author{
 Allen Day

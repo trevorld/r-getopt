@@ -1,6 +1,11 @@
+getopt 1.20.4
+=============
+* Documentation tweaks eliminating a CRAN check NOTE.
+* `{covr}` is no longer a "suggested" package in the `DESCRIPTION` file.
+
 getopt 1.20.3
 =============
-* Now by default ``getopt`` won't override a user specified ``opt`` argument if ``argv`` is in the global environment.
+* Now by default ``getopt()`` won't override a user specified ``opt`` argument if ``argv`` is in the global environment.
   Will continue to use ``argv`` as a default for ``opt`` if it is in the global environment and the user does not specify an ``opt`` argument (for ``littler`` compatibility).
 
 getopt 1.20.2
@@ -10,11 +15,11 @@ getopt 1.20.2
 
 getopt 1.20.1
 =============
-* Now explicitly imports the ``na.omit`` method from the ``stats`` package.
+* Now explicitly imports the ``na.omit()`` method from the ``stats`` package.
   Thanks Derrick Oswald for bug report.
 * Improved parsing for negative numbers preceded by a space instead of a '=' sign.  
   Thanks Roman Zenka for improved regular expression.
-* Slightly more informative error message if `storage.mode` coercion results in an `NA`.
+* Slightly more informative error message if `storage.mode()` coercion results in an `NA`.
   Thanks Roman Zenka for suggestion.
 
 getopt 1.20.0
@@ -23,7 +28,7 @@ getopt 1.20.0
   Previously users might have had an error passing negative numbers if they
   accidentally specified "numeric" instead of "double".
 * Project website moved to https://github.com/trevorld/getopt
-* Exports new function ``sort_list``.
+* Exports new function ``sort_list()``.
 
 getopt 1.19.1
 =============
@@ -32,7 +37,7 @@ getopt 1.19.1
 
 getopt 1.19.0
 =============
-* Exports new function `get_Rscript_filename` that returns name of calling script,
-  `getopt` now uses this function value as default for `command` argument
+* Exports new function ``get_Rscript_filename()`` that returns name of calling script,
+  `{getopt}` now uses this function value as default for ``command`` argument.
 * Documentation improved and now highlights differences 
-  between `getopt` and `optparse` packages for new undecided users
+  between `{getopt}` and `{optparse}` packages for new undecided users.

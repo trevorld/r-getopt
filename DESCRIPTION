@@ -13,12 +13,13 @@ Imports:
     stats
 BugReports: https://github.com/trevorld/r-getopt/issues
 Description: Package designed to be used with Rscript to write
-    ``#!'' shebang scripts that accept short and long flags/options.
+    '#!' shebang scripts that accept short and long flags/options.
     Many users will prefer using instead the packages optparse or argparse
     which add extra features like automatically generated help option and usage,
     support for default values, positional argument support, etc.
 License: GPL (>= 2)
 Suggests:
-    covr, testthat
-RoxygenNote: 7.1.1
+    testthat
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3

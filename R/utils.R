@@ -13,12 +13,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#' Returns file name of calling Rscript
+#' Returns file name being interpreted by Rscript
 #'
-#' \code{get_Rscript_filename} returns the file name of calling Rscript
+#' `get_Rscript_filename()` returns the file name that `Rscript` is interpreting.
 #' @return A string with the filename of the calling script.
-#'      If not found (i.e. you are in a interactive session) returns NA.
-#'
+#'      If not found (i.e. you are in a interactive session) returns `NA_character_`.
 #' @export
 get_Rscript_filename <- function() { # nolint
     prog <- sub("--file=", "", grep("--file=", commandArgs(), value = TRUE)[1])
@@ -30,9 +29,12 @@ get_Rscript_filename <- function() { # nolint
 
 #' Recursively sorts a list
 #'
-#' \code{sort_list} returns a sorted list
+#' `sort_list()` returns a recursively sorted list
 #' @param unsorted_list A list.
 #' @return A sorted list.
+#' @examples
+#' l <- list(b = 2, a = 1)
+#' sort_list(l)
 #' @export
 sort_list <- function(unsorted_list) {
     for (ii in seq(along = unsorted_list)) {
