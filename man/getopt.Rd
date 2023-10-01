@@ -106,7 +106,7 @@ no argument or a required argument like \code{optparse},
 Some features implemented in \code{optparse} package unavailable in \code{getopt}
 \enumerate{
 \item Limited support for capturing positional arguments after the optional arguments
-when \code{positional_arguments} set to \code{TRUE} in \code{\link[optparse:parse_args]{optparse::parse_args()}}
+when \code{positional_arguments} set to \code{TRUE} in \code{optparse::parse_args()}
 \item Automatic generation of an help option and printing of help text when encounters an \code{-h}
 \item Option to specify default arguments for options as well the
 variable name to store option values

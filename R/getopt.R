@@ -62,7 +62,7 @@
 #' Some features implemented in `optparse` package unavailable in `getopt`
 #'
 #' 1. Limited support for capturing positional arguments after the optional arguments
-#' when `positional_arguments` set to `TRUE` in [optparse::parse_args()]
+#' when `positional_arguments` set to `TRUE` in `optparse::parse_args()`
 #'
 #' 2. Automatic generation of an help option and printing of help text when encounters an `-h`
 #'
