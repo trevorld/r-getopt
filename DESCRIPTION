@@ -8,7 +8,7 @@ Authors@R: c(person("Trevor L.", "Davis", role=c("aut", "cre"),
              comment = c(ORCID = "0000-0001-6341-4639")),
     person("Allen", "Day", role="aut", comment="Original package author"),
     person("Roman", "Zenka", role="ctb"))
-URL: https://github.com/trevorld/r-getopt
+URL: https://github.com/trevorld/r-getopt, https://trevorldavis.com/R/getopt
 Imports:
     stats
 BugReports: https://github.com/trevorld/r-getopt/issues
