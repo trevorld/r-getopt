@@ -5,7 +5,7 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: CRAN Status Badge
 
-.. image:: https://github.com/trevorld/r-getopt/workflows/R-CMD-check/badge.svg
+.. image:: https://github.com/trevorld/r-getopt/actions/workflows/R-CMD-check.yaml/badge.svg?branch=master
     :target: https://github.com/trevorld/r-getopt/actions
     :alt: R-CMD-check
 
