@@ -1,3 +1,7 @@
+getopt 1.20.5 (development)
+===========================
+* No user facing changes.
+
 getopt 1.20.4
 =============
 * Documentation tweaks eliminating a CRAN check NOTE.
@@ -17,14 +21,14 @@ getopt 1.20.1
 =============
 * Now explicitly imports the ``na.omit()`` method from the ``stats`` package.
   Thanks Derrick Oswald for bug report.
-* Improved parsing for negative numbers preceded by a space instead of a '=' sign.  
+* Improved parsing for negative numbers preceded by a space instead of a '=' sign.
   Thanks Roman Zenka for improved regular expression.
 * Slightly more informative error message if `storage.mode()` coercion results in an `NA`.
   Thanks Roman Zenka for suggestion.
 
 getopt 1.20.0
 =============
-* Type of "numeric" in spec automatically cast to "double".  
+* Type of "numeric" in spec automatically cast to "double".
   Previously users might have had an error passing negative numbers if they
   accidentally specified "numeric" instead of "double".
 * Project website moved to https://github.com/trevorld/getopt
@@ -39,5 +43,5 @@ getopt 1.19.0
 =============
 * Exports new function ``get_Rscript_filename()`` that returns name of calling script,
   `{getopt}` now uses this function value as default for ``command`` argument.
-* Documentation improved and now highlights differences 
+* Documentation improved and now highlights differences
   between `{getopt}` and `{optparse}` packages for new undecided users.
