@@ -129,10 +129,6 @@ test_that("getopt works as expected", {
 		sort_list(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM")))
 	)
 	expect_output(
-		getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), debug = TRUE),
-		"processing "
-	)
-	expect_output(
 		print(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), usage = TRUE)),
 		"Usage: "
 	)
@@ -188,7 +184,7 @@ test_that("more helpful warnings upon incorrect input", {
 	expect_error(getopt(spec, ""), 'argument "spec" must be non-null.')
 
 	spec <- c("foo", "f", 0)
-	expect_error(getopt(spec, ""), "or a character vector with length divisible by 4, rtfm")
+	expect_error(getopt(spec, ""), "or a character vector with length divisible by 4")
 
 	spec <- matrix(c("foo", "f", 0, "integer"), ncol = 2)
 	expect_error(getopt(spec, ""), '"spec" should have at least 4 columns.')
@@ -337,7 +333,15 @@ test_that("tests to get coverage up", {
 	expect_error(getopt(spec, c("--foobar")), 'flag "foobar" requires an argument')
 	expect_error(getopt(spec, c("--foobar", "--help")), 'flag "foobar" requires an argument')
 
-	expect_output(getopt(spec, c("-n", "2"), debug = TRUE), "short option: -n")
-	expect_output(getopt(spec, c("-b", "-"), debug = TRUE), "lone dash")
 	expect_warning(getopt(spec, c("-n", "-")), paste("double expected, got", dQuote("-")))
+})
+test_that("debug output", {
+	spec <- matrix(
+		c("foo", "f", 0L, "logical", "bar", "b", 1L, "character", "num", "n", 2L, "double"),
+		ncol = 4L,
+		byrow = TRUE
+	)
+	expect_snapshot(. <- getopt(spec, c("--foo", "--bar", "baz"), debug = TRUE))
+	expect_snapshot(. <- getopt(spec, c("-fn", "2"), debug = TRUE))
+	expect_snapshot(. <- getopt(spec, c("-b", "-"), debug = TRUE))
 })
