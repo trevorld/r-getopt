@@ -50,5 +50,5 @@ spec <- matrix(c(
   'mean'   , 'm', 1, "double",
   'sd'     , 's', 1, "double"
 ), byrow = TRUE, ncol = 4)
-cat(getusage(spec))
+cat(getusage(spec, command = "myscript"))
 }

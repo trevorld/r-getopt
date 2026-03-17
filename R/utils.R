@@ -28,6 +28,10 @@ get_Rscript_filename <- function() {
 	prog
 }
 
+na_omit <- function(x) {
+	Filter(Negate(is.na), x)
+}
+
 #' Recursively sorts a list
 #'
 #' `sort_list()` returns a recursively sorted list
