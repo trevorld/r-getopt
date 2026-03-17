@@ -128,10 +128,7 @@ test_that("getopt works as expected", {
 		sort_list(getopt(spec2, c("--date", "20080421", "--market", "YM", "--getdata"))),
 		sort_list(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM")))
 	)
-	expect_output(
-		print(getopt(spec2, c("--date", "20080421", "--getdata", "--market", "YM"), usage = TRUE)),
-		"Usage: "
-	)
+	expect_snapshot(cat(getopt(spec2, usage = TRUE)))
 })
 test_that("numeric is cast to double", {
 	# Feature reported upstream (optparse) by Miroslav Posta
@@ -142,6 +139,10 @@ test_that("numeric is cast to double", {
 	spec <- matrix(c("count", "c", 1, "numeric"), ncol = 4, byrow = TRUE)
 	opt <- getopt(spec, c("-c", "-55.0"))
 	expect_equal(typeof(opt$count), "double")
+})
+test_that("data.frame spec is coerced to matrix", {
+	spec <- as.data.frame(matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE))
+	expect_equal(getopt(spec, c("-c", "5"))$count, 5L)
 })
 test_that("empty strings are handled correctly for mandatory character arguments", {
 	spec <- matrix(
@@ -174,23 +175,27 @@ test_that("negative numbers are handled correctly", {
 
 test_that("more helpful warnings upon incorrect input", {
 	# Give more pointed warning upon wildly incorrect input
-	spec <- matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE)
-	expect_warning(
-		getopt(spec, c("-c", "hello"))$count,
-		paste("integer expected, got", dQuote("hello"))
+	expect_snapshot({
+		spec <- matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE)
+		getopt(spec, c("-c", "hello"))$count
+	})
+
+	expect_snapshot(
+		{
+			spec <- NULL
+			getopt(spec, "")
+
+			spec <- c("foo", "f", 0)
+			getopt(spec, "")
+
+			spec <- matrix(c("foo", "f", 0, "integer"), ncol = 2)
+			getopt(spec, "")
+
+			spec <- matrix(c("foo", "f", 0, "integer", "bar", "b", 0, "integer"), ncol = 8)
+			getopt(spec, "")
+		},
+		error = TRUE
 	)
-
-	spec <- NULL
-	expect_error(getopt(spec, ""), 'argument "spec" must be non-null.')
-
-	spec <- c("foo", "f", 0)
-	expect_error(getopt(spec, ""), "or a character vector with length divisible by 4")
-
-	spec <- matrix(c("foo", "f", 0, "integer"), ncol = 2)
-	expect_error(getopt(spec, ""), '"spec" should have at least 4 columns.')
-
-	spec <- matrix(c("foo", "f", 0, "integer", "bar", "b", 0, "integer"), ncol = 8)
-	expect_error(getopt(spec, ""), '"spec" should have no more than 6 columns.')
 })
 
 test_that("don't throw error if multiple matches match one argument fully", {
@@ -271,7 +276,7 @@ test_that("Optional usage strings work as expected", {
 		ncol = 5,
 		byrow = TRUE
 	)
-	expect_output(cat(getopt(spec, usage = TRUE)), "foobar usage")
+	expect_snapshot(cat(getopt(spec, usage = TRUE)))
 })
 
 test_that("tests to get coverage up", {
