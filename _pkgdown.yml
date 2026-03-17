@@ -4,3 +4,10 @@ development:
     mode: auto
 template:
   bootstrap: 5
+reference:
+  - title: "Functions"
+    contents:
+      - getopt
+      - get_Rscript_filename
+      - getusage
+      - sort_list
