@@ -134,8 +134,7 @@ don't match any options.  For example, you can't do \verb{my.R --arg1 1 foo bar 
 \examples{
 #!/path/to/Rscript
 library('getopt')
-# get options, using the spec as defined by the enclosed list.
-# we read the options from the default: commandArgs(TRUE).
+# get options, using the spec as defined by the matrix
 spec <- matrix(c(
   'verbose', 'v', 2, "integer",
   'help'   , 'h', 0, "logical",
@@ -155,16 +154,16 @@ if (isTRUE(opt$help)) {
 # set reasonable defaults for options that were not specified
 if (is.null(opt$mean)) opt$mean <- 0
 if (is.null(opt$sd)) opt$sd <- 1
-if (is.null(opt$count)) opt$count <- 10
-if (is.null(opt$verbose)) opt$verbose <- FALSE
+if (is.null(opt$count)) opt$count <- 10L
+if (is.null(opt$verbose)) opt$verbose <- 0L
 
-# print some progress messages to stderr, if requested.
+# print some progress messages to stderr, if requested
 if (opt$verbose) write("writing...", stderr())
 
-# do some operation based on user input.
+# do some operation based on user input
 cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
 
-# signal success and exit.
+# signal success and exit
 # q(status = 0L)
 }
 \author{

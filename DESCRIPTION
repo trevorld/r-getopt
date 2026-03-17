@@ -9,8 +9,6 @@ Authors@R: c(person("Trevor L.", "Davis", role=c("aut", "cre"),
     person("Allen", "Day", role="aut", comment="Original package author"),
     person("Roman", "Zenka", role="ctb"))
 URL: https://github.com/trevorld/r-getopt, https://trevorldavis.com/R/getopt
-Imports:
-    stats
 BugReports: https://github.com/trevorld/r-getopt/issues
 Description: Package designed to be used with Rscript to write
     '#!' shebang scripts that accept short and long flags/options.
@@ -19,6 +17,7 @@ Description: Package designed to be used with Rscript to write
     support for default values, positional argument support, etc.
 License: GPL (>= 2)
 Suggests:
+    stats,
     testthat
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

@@ -175,7 +175,6 @@
 #'
 #' # signal success and exit
 #' # q(status = 0L)
-#' @import stats
 getopt <- function(
 	spec = NULL,
 	opt = NULL,
@@ -183,8 +182,6 @@ getopt <- function(
 	usage = FALSE,
 	debug = FALSE
 ) {
-	# nolint
-
 	# littler compatibility - map argv vector to opt
 	if (is.null(opt)) {
 		if (exists("argv", where = .GlobalEnv, inherits = FALSE)) {
@@ -194,8 +191,7 @@ getopt <- function(
 		}
 	}
 
-	result <- list()
-	result$ARGS <- vector(mode = "character") # nolint
+	result <- list(ARGS = character(0L))
 
 	spec <- as_spec(spec)
 
@@ -213,7 +209,7 @@ getopt <- function(
 		optstring <- opt[i]
 
 		# long flag
-		if (substr(optstring, 1, 2) == "--") {
+		if (startsWith(optstring, "--")) {
 			if (debug) {
 				print(paste("  long option:", opt[i]))
 			}
@@ -286,7 +282,7 @@ getopt <- function(
 			}
 
 			# short flag(s)
-		} else if (substr(optstring, 1, 1) == "-") {
+		} else if (startsWith(optstring, "-")) {
 			if (debug) {
 				print(paste("  short option:", opt[i]))
 			}
@@ -362,13 +358,13 @@ getopt <- function(
 				# we don't allow arguments beginning with "-" UNLESS specfile indicates the value is an "integer" or "double",
 				# in which case we allow a leading dash (and verify trailing digits/decimals).
 				if (
-					substr(peek_optstring, 1, 1) != "-" |
+					!startsWith(peek_optstring, "-") |
 						# match negative double
-						(substr(peek_optstring, 1, 1) == "-" &
+						(startsWith(peek_optstring, "-") &
 							regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek_optstring) > 0 &
 							spec[current_flag, COL_MODE] == "double") |
 						# match negative integer
-						(substr(peek_optstring, 1, 1) == "-" &
+						(startsWith(peek_optstring, "-") &
 							regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek_optstring) > 0 &
 							spec[current_flag, COL_MODE] == "integer")
 				) {
@@ -385,7 +381,7 @@ getopt <- function(
 
 					# a lone dash
 				} else if (
-					substr(peek_optstring, 1, 1) == "-" &
+					startsWith(peek_optstring, "-") &
 						length(strsplit(peek_optstring, "")[[1L]]) == 1L
 				) {
 					if (debug) {
@@ -464,15 +460,14 @@ getopt <- function(
 #'   'mean'   , 'm', 1, "double",
 #'   'sd'     , 's', 1, "double"
 #' ), byrow = TRUE, ncol = 4)
-#' cat(getusage(spec))
+#' cat(getusage(spec, command = "myscript"))
 getusage <- function(spec, command = get_Rscript_filename()) {
 	spec <- as_spec(spec)
 
-	ncol <- dim(spec)[2L]
+	ncol <- ncol(spec)
 
-	ret <- ""
-	ret <- paste(ret, "Usage: ", command, sep = "")
-	for (j in 1L:(dim(spec))[1L]) {
+	ret <- paste0("Usage: ", command)
+	for (j in seq_len(nrow(spec))) {
 		ret <- paste(
 			ret,
 			" [-[-",
@@ -492,11 +487,9 @@ getusage <- function(spec, command = get_Rscript_filename()) {
 	}
 	# include usage strings
 	if (ncol >= 5L) {
-		max.long <- max(apply(cbind(spec[, COL_LONG_NAME]), 1L, function(x) {
-			length(strsplit(x, "")[[1L]])
-		}))
+		max.long <- max(nchar(spec[, COL_LONG_NAME]))
 		ret <- paste(ret, "\n", sep = "")
-		for (j in 1L:(dim(spec))[1L]) {
+		for (j in seq_len(nrow(spec))) {
 			ret <- paste(
 				ret,
 				sprintf(
@@ -515,7 +508,7 @@ getusage <- function(spec, command = get_Rscript_filename()) {
 }
 
 as_spec <- function(spec) {
-	ncol <- 4L
+	mincol <- 4L
 	maxcol <- 6L
 
 	if (is.null(spec)) {
@@ -525,15 +518,15 @@ as_spec <- function(spec) {
 			warning(
 				'argument "spec" was coerced to a 4-column (row-major) matrix.  use a matrix to prevent the coercion'
 			)
-			spec <- matrix(spec, ncol = ncol, byrow = TRUE)
+			spec <- matrix(spec, ncol = 4L, byrow = TRUE)
 		} else {
 			stop(
 				'argument "spec" must be a matrix, or a character vector with length divisible by 4, rtfm.'
 			)
 		}
-	} else if (dim(spec)[2L] < ncol) {
-		stop(paste('"spec" should have at least ', ncol, " columns.", sep = ""))
-	} else if (dim(spec)[2L] > maxcol) {
+	} else if (ncol(spec) < mincol) {
+		stop(paste('"spec" should have at least ', mincol, " columns.", sep = ""))
+	} else if (ncol(spec) > maxcol) {
 		stop(paste('"spec" should have no more than ', maxcol, " columns.", sep = ""))
 	}
 
@@ -547,8 +540,7 @@ as_spec <- function(spec) {
 		))
 	}
 	if (
-		length(stats::na.omit(unique(spec[, COL_SHORT_NAME]))) !=
-			length(stats::na.omit(spec[, COL_SHORT_NAME]))
+		length(na_omit(unique(spec[, COL_SHORT_NAME]))) != length(na_omit(spec[, COL_SHORT_NAME]))
 	) {
 		stop(paste(
 			"redundant short names for flags (column ",
