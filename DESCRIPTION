@@ -16,6 +16,8 @@ Description: Package designed to be used with Rscript to write
     which add extra features like automatically generated help option and usage,
     support for default values, positional argument support, etc.
 License: GPL (>= 2)
+Depends:
+	R (>= 3.3)
 Suggests:
     stats,
     testthat
