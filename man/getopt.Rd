@@ -136,24 +136,23 @@ don't match any options.  For example, you can't do \verb{my.R --arg1 1 foo bar 
 library('getopt')
 # get options, using the spec as defined by the enclosed list.
 # we read the options from the default: commandArgs(TRUE).
-spec = matrix(c(
+spec <- matrix(c(
   'verbose', 'v', 2, "integer",
   'help'   , 'h', 0, "logical",
   'count'  , 'c', 1, "integer",
   'mean'   , 'm', 1, "double",
   'sd'     , 's', 1, "double"
-), byrow=TRUE, ncol=4)
-opt = getopt(spec)
+), byrow = TRUE, ncol = 4L)
+opt <- getopt(spec)
 
 # if help was asked for print a friendly message
 # and exit with a non-zero error code
-if (!is.null(opt$help)) {
-  cat(getopt(spec, usage = TRUE))
-  q(status = 1)
+if (isTRUE(opt$help)) {
+  cat(getusage(spec))
+  q(status = 1L)
 }
 
-# set some reasonable defaults for the options that are needed,
-# but were not specified.
+# set reasonable defaults for options that were not specified
 if (is.null(opt$mean)) opt$mean <- 0
 if (is.null(opt$sd)) opt$sd <- 1
 if (is.null(opt$count)) opt$count <- 10
@@ -166,7 +165,7 @@ if (opt$verbose) write("writing...", stderr())
 cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
 
 # signal success and exit.
-# q(status=0)
+# q(status = 0L)
 }
 \author{
 Allen Day

@@ -2,5 +2,6 @@
 
 export(get_Rscript_filename)
 export(getopt)
+export(getusage)
 export(sort_list)
 import(stats)

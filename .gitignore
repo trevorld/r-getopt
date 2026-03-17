@@ -1,4 +1,5 @@
 *.swp
+.claude
 README.md
 README.html
 pkgdown/

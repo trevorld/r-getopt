@@ -1,6 +1,6 @@
-getopt 1.20.5 (development)
+getopt 1.21.0 (development)
 ===========================
-* No user facing changes.
+* New `getusage()` function generates a usage string from a getopt `spec` matrix.
 
 getopt 1.20.4
 =============

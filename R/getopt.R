@@ -144,39 +144,37 @@
 #' @examples
 #' #!/path/to/Rscript
 #' library('getopt')
-#' # get options, using the spec as defined by the enclosed list.
-#' # we read the options from the default: commandArgs(TRUE).
-#' spec = matrix(c(
+#' # get options, using the spec as defined by the matrix
+#' spec <- matrix(c(
 #'   'verbose', 'v', 2, "integer",
 #'   'help'   , 'h', 0, "logical",
 #'   'count'  , 'c', 1, "integer",
 #'   'mean'   , 'm', 1, "double",
 #'   'sd'     , 's', 1, "double"
-#' ), byrow=TRUE, ncol=4)
-#' opt = getopt(spec)
+#' ), byrow = TRUE, ncol = 4L)
+#' opt <- getopt(spec)
 #'
 #' # if help was asked for print a friendly message
 #' # and exit with a non-zero error code
-#' if (!is.null(opt$help)) {
-#'   cat(getopt(spec, usage = TRUE))
-#'   q(status = 1)
+#' if (isTRUE(opt$help)) {
+#'   cat(getusage(spec))
+#'   q(status = 1L)
 #' }
 #'
-#' # set some reasonable defaults for the options that are needed,
-#' # but were not specified.
+#' # set reasonable defaults for options that were not specified
 #' if (is.null(opt$mean)) opt$mean <- 0
 #' if (is.null(opt$sd)) opt$sd <- 1
-#' if (is.null(opt$count)) opt$count <- 10
-#' if (is.null(opt$verbose)) opt$verbose <- FALSE
+#' if (is.null(opt$count)) opt$count <- 10L
+#' if (is.null(opt$verbose)) opt$verbose <- 0L
 #'
-#' # print some progress messages to stderr, if requested.
+#' # print some progress messages to stderr, if requested
 #' if (opt$verbose) write("writing...", stderr())
 #'
-#' # do some operation based on user input.
+#' # do some operation based on user input
 #' cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
 #'
-#' # signal success and exit.
-#' # q(status=0)
+#' # signal success and exit
+#' # q(status = 0L)
 #' @import stats
 getopt <- function(
 	spec = NULL,
@@ -196,130 +194,22 @@ getopt <- function(
 		}
 	}
 
-	ncol <- 4
-	maxcol <- 6
-	col_long_name <- 1
-	col_short_name <- 2
-	col_has_argument <- 3
-	col_mode <- 4
-	col_description <- 5
-
-	flag_no_argument <- 0
-	flag_required_argument <- 1
-	flag_optional_argument <- 2
-
 	result <- list()
 	result$ARGS <- vector(mode = "character") # nolint
 
-	# no spec.  fail.
-	if (is.null(spec)) {
-		stop('argument "spec" must be non-null.')
+	spec <- as_spec(spec)
 
-		# spec is not a matrix.  attempt to coerce, if possible.  issue a warning.
-	} else if (!is.matrix(spec)) {
-		if (length(spec) / 4 == as.integer(length(spec) / 4)) {
-			warning(
-				'argument "spec" was coerced to a 4-column (row-major) matrix.  use a matrix to prevent the coercion'
-			)
-			spec <- matrix(spec, ncol = ncol, byrow = TRUE)
-		} else {
-			stop(
-				'argument "spec" must be a matrix, or a character vector with length divisible by 4, rtfm.'
-			)
-		}
-
-		# spec is a matrix, but it has too few columns.
-	} else if (dim(spec)[2] < ncol) {
-		stop(paste('"spec" should have at least ', ncol, " columns.", sep = ""))
-
-		# spec is a matrix, but it has too many columns.
-	} else if (dim(spec)[2] > maxcol) {
-		stop(paste('"spec" should have no more than ', maxcol, " columns.", sep = ""))
-
-		# spec is a matrix, and it has some optional columns.
-	} else if (dim(spec)[2] != ncol) {
-		ncol <- dim(spec)[2]
-	}
-
-	# sanity check.  make sure long names are unique, and short names are unique.
-	if (length(unique(spec[, col_long_name])) != length(spec[, col_long_name])) {
-		stop(paste(
-			"redundant long names for flags (column ",
-			col_long_name,
-			" of spec matrix).",
-			sep = ""
-		))
-	}
-	if (
-		length(stats::na.omit(unique(spec[, col_short_name]))) !=
-			length(stats::na.omit(spec[, col_short_name]))
-	) {
-		stop(paste(
-			"redundant short names for flags (column ",
-			col_short_name,
-			" of spec matrix).",
-			sep = ""
-		))
-	}
-	# convert numeric type to double type
-	spec[, 4] <- gsub("numeric", "double", spec[, 4])
-
-	# if usage=TRUE, don't process opt, but generate a usage string from the data in spec
 	if (usage) {
-		ret <- ""
-		ret <- paste(ret, "Usage: ", command, sep = "")
-		for (j in 1:(dim(spec))[1]) {
-			ret <- paste(
-				ret,
-				" [-[-",
-				spec[j, col_long_name],
-				"|",
-				spec[j, col_short_name],
-				"]",
-				sep = ""
-			)
-			if (spec[j, col_has_argument] == flag_no_argument) {
-				ret <- paste(ret, "]", sep = "")
-			} else if (spec[j, col_has_argument] == flag_required_argument) {
-				ret <- paste(ret, " <", spec[j, col_mode], ">]", sep = "")
-			} else if (spec[j, col_has_argument] == flag_optional_argument) {
-				ret <- paste(ret, " [<", spec[j, col_mode], ">]]", sep = "")
-			}
-		}
-		# include usage strings
-		if (ncol >= 5) {
-			max.long <- max(apply(cbind(spec[, col_long_name]), 1, function(x) {
-				length(strsplit(x, "")[[1]])
-			}))
-			ret <- paste(ret, "\n", sep = "")
-			for (j in 1:(dim(spec))[1]) {
-				ret <- paste(
-					ret,
-					sprintf(
-						paste("    -%s|--%-", max.long, "s    %s\n", sep = ""),
-						spec[j, col_short_name],
-						spec[j, col_long_name],
-						spec[j, col_description]
-					),
-					sep = ""
-				)
-			}
-		} else {
-			ret <- paste(ret, "\n", sep = "")
-		}
-		return(ret)
+		return(getusage(spec, command))
 	}
-
-	# XXX check spec validity here.  e.g. column three should be convertible to integer
-
-	i <- 1
+	i <- 1L
 
 	while (i <= length(opt)) {
 		if (debug) {
 			print(paste("processing", opt[i]))
 		}
 
-		current_flag <- 0 # XXX use NA
+		current_flag <- 0L # XXX use NA
 		optstring <- opt[i]
 
 		# long flag
@@ -332,16 +222,16 @@ getopt <- function(
 
 			this_flag <- NA
 			this_argument <- NA
-			kv <- strsplit(optstring, "=")[[1]]
+			kv <- strsplit(optstring, "=")[[1L]]
 			# if (!is.na(kv[2])) {
 			if (grepl("=", optstring)) {
 				this_flag <- kv[1]
-				this_argument <- paste(kv[-1], collapse = "=")
+				this_argument <- paste(kv[-1L], collapse = "=")
 			} else {
 				this_flag <- optstring
 			}
 
-			rowmatch <- grep(this_flag, spec[, col_long_name], fixed = TRUE)
+			rowmatch <- grep(this_flag, spec[, COL_LONG_NAME], fixed = TRUE)
 
 			# long flag is invalid, matches no options
 			if (length(rowmatch) == 0) {
@@ -350,7 +240,7 @@ getopt <- function(
 				# long flag is ambiguous, matches too many options
 			} else if (length(rowmatch) > 1) {
 				# check if there is an exact match and use that
-				rowmatch <- which(this_flag == spec[, col_long_name])
+				rowmatch <- which(this_flag == spec[, COL_LONG_NAME])
 				if (length(rowmatch) == 0) {
 					stop(paste('long flag "', this_flag, '" is ambiguous', sep = ""))
 				}
@@ -359,12 +249,12 @@ getopt <- function(
 			# if we have an argument
 			if (!is.na(this_argument)) {
 				# if we can't accept the argument, bail out
-				if (spec[rowmatch, col_has_argument] == flag_no_argument) {
+				if (spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
 					stop(paste('long flag "', this_flag, '" accepts no arguments', sep = ""))
 
 					# otherwise assign the argument to the flag
 				} else {
-					mode <- spec[rowmatch, col_mode]
+					mode <- spec[rowmatch, COL_MODE]
 					warning_msg <- tryCatch(
 						storage.mode(this_argument) <- mode,
 						warning = function(w) {
@@ -374,8 +264,8 @@ getopt <- function(
 					if (is.na(this_argument) && !grepl("expected, got", warning_msg)) {
 						warning(paste("long flag", this_flag, "given a bad argument"))
 					}
-					result[spec[rowmatch, col_long_name]] <- this_argument
-					i <- i + 1
+					result[spec[rowmatch, COL_LONG_NAME]] <- this_argument
+					i <- i + 1L
 					next
 				}
 
@@ -383,14 +273,14 @@ getopt <- function(
 			} else {
 				# nolint start
 				# if we require an argument, bail out
-				### if (spec[rowmatch, col_has_argument] == flag_required_argument) {
+				### if (spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
 				###  stop(paste('long flag "', this_flag, '" requires an argument', sep = ""))
 
 				# long flag has no attached argument. set flag as present.
 				# set current_flag so we can peek ahead later and consume the argument if it's there
 				# nolint end
 				###} else {
-				result[spec[rowmatch, col_long_name]] <- TRUE
+				result[spec[rowmatch, COL_LONG_NAME]] <- TRUE
 				current_flag <- rowmatch
 				###}
 			}
@@ -401,12 +291,12 @@ getopt <- function(
 				print(paste("  short option:", opt[i]))
 			}
 
-			these_flags <- strsplit(optstring, "")[[1]]
+			these_flags <- strsplit(optstring, "")[[1L]]
 
 			done <- FALSE
-			for (j in 2:length(these_flags)) {
+			for (j in 2L:length(these_flags)) {
 				this_flag <- these_flags[j]
-				rowmatch <- grep(this_flag, spec[, col_short_name], fixed = TRUE)
+				rowmatch <- grep(this_flag, spec[, COL_SHORT_NAME], fixed = TRUE)
 
 				# short flag is invalid, matches no options
 				if (length(rowmatch) == 0) {
@@ -415,7 +305,7 @@ getopt <- function(
 					# short flag has an argument, but is not the last in a compound flag string
 				} else if (
 					j < length(these_flags) &
-						spec[rowmatch, col_has_argument] == flag_required_argument
+						spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT
 				) {
 					stop(paste(
 						'short flag "',
@@ -425,25 +315,25 @@ getopt <- function(
 					))
 
 					# short flag has no argument, flag it as present
-				} else if (spec[rowmatch, col_has_argument] == flag_no_argument) {
-					result[spec[rowmatch, col_long_name]] <- TRUE
+				} else if (spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
+					result[spec[rowmatch, COL_LONG_NAME]] <- TRUE
 					done <- TRUE
 
 					# can't definitively process this_flag flag yet, need to see if next option is an argument or not
 				} else {
-					result[spec[rowmatch, col_long_name]] <- TRUE
+					result[spec[rowmatch, COL_LONG_NAME]] <- TRUE
 					current_flag <- rowmatch
 					done <- FALSE
 				}
 			}
 			if (done) {
-				i <- i + 1
+				i <- i + 1L
 				next
 			}
 		}
 
 		# invalid opt
-		if (current_flag == 0) {
+		if (current_flag == 0L) {
 			stop(paste(
 				'"',
 				optstring,
@@ -458,12 +348,12 @@ getopt <- function(
 			# nolint end
 
 			# some dangling flag, handle it
-		} else if (current_flag > 0) {
+		} else if (current_flag > 0L) {
 			if (debug) {
 				print("    dangling flag")
 			}
 			if (length(opt) > i) {
-				peek_optstring <- opt[i + 1]
+				peek_optstring <- opt[i + 1L]
 				if (debug) {
 					print(paste('      peeking ahead at: "', peek_optstring, '"', sep = ""))
 				}
@@ -476,37 +366,37 @@ getopt <- function(
 						# match negative double
 						(substr(peek_optstring, 1, 1) == "-" &
 							regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek_optstring) > 0 &
-							spec[current_flag, col_mode] == "double") |
+							spec[current_flag, COL_MODE] == "double") |
 						# match negative integer
 						(substr(peek_optstring, 1, 1) == "-" &
 							regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek_optstring) > 0 &
-							spec[current_flag, col_mode] == "integer")
+							spec[current_flag, COL_MODE] == "integer")
 				) {
 					if (debug) {
 						print(paste("        consuming argument *", peek_optstring, "*", sep = ""))
 					}
 
-					mode <- spec[current_flag, col_mode]
+					mode <- spec[current_flag, COL_MODE]
 					tryCatch(storage.mode(peek_optstring) <- mode, warning = function(w) {
 						warning(paste(mode, "expected, got", dQuote(peek_optstring)))
 					})
-					result[spec[current_flag, col_long_name]] <- peek_optstring
-					i <- i + 1
+					result[spec[current_flag, COL_LONG_NAME]] <- peek_optstring
+					i <- i + 1L
 
 					# a lone dash
 				} else if (
 					substr(peek_optstring, 1, 1) == "-" &
-						length(strsplit(peek_optstring, "")[[1]]) == 1
+						length(strsplit(peek_optstring, "")[[1L]]) == 1L
 				) {
 					if (debug) {
 						print('        consuming "lone dash" argument')
 					}
-					mode <- spec[current_flag, col_mode]
+					mode <- spec[current_flag, COL_MODE]
 					tryCatch(storage.mode(peek_optstring) <- mode, warning = function(w) {
 						warning(paste(mode, "expected, got", dQuote(peek_optstring)))
 					}) # nocov
-					result[spec[current_flag, col_long_name]] <- peek_optstring
-					i <- i + 1
+					result[spec[current_flag, COL_LONG_NAME]] <- peek_optstring
+					i <- i + 1L
 
 					# no argument
 				} else {
@@ -515,17 +405,17 @@ getopt <- function(
 					}
 
 					# if we require an argument, bail out
-					if (spec[current_flag, col_has_argument] == flag_required_argument) {
+					if (spec[current_flag, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
 						stop(paste('flag "', this_flag, '" requires an argument', sep = ""))
 
 						# otherwise set flag as present.
 					} else if (
-						spec[current_flag, col_has_argument] == flag_optional_argument |
-							spec[current_flag, col_has_argument] == flag_no_argument
+						spec[current_flag, COL_HAS_ARGUMENT] == FLAG_OPTIONAL_ARGUMENT |
+							spec[current_flag, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT
 					) {
 						x <- TRUE
-						storage.mode(x) <- spec[current_flag, col_mode]
-						result[spec[current_flag, col_long_name]] <- x
+						storage.mode(x) <- spec[current_flag, COL_MODE]
+						result[spec[current_flag, COL_LONG_NAME]] <- x
 					} else {
 						stop(paste(
 							"This should never happen.", # nocov
@@ -535,26 +425,143 @@ getopt <- function(
 					}
 				}
 				# trailing flag without required argument
-			} else if (spec[current_flag, col_has_argument] == flag_required_argument) {
+			} else if (spec[current_flag, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
 				stop(paste('flag "', this_flag, '" requires an argument', sep = ""))
 
 				# trailing flag without optional argument
-			} else if (spec[current_flag, col_has_argument] == flag_optional_argument) {
+			} else if (spec[current_flag, COL_HAS_ARGUMENT] == FLAG_OPTIONAL_ARGUMENT) {
 				x <- TRUE
-				storage.mode(x) <- spec[current_flag, col_mode]
-				result[spec[current_flag, col_long_name]] <- x
+				storage.mode(x) <- spec[current_flag, COL_MODE]
+				result[spec[current_flag, COL_LONG_NAME]] <- x
 
 				# trailing flag without argument
-			} else if (spec[current_flag, col_has_argument] == flag_no_argument) {
+			} else if (spec[current_flag, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
 				x <- TRUE
-				storage.mode(x) <- spec[current_flag, col_mode]
-				result[spec[current_flag, col_long_name]] <- x
+				storage.mode(x) <- spec[current_flag, COL_MODE]
+				result[spec[current_flag, COL_LONG_NAME]] <- x
 			} else {
 				stop("this should never happen (2).  please inform the author.") # nocov
 			}
 		} # no dangling flag, nothing to do.
 
-		i <- i + 1
+		i <- i + 1L
 	}
 	return(result)
+}
+
+#' Generate a usage string
+#'
+#' Generate a usage string from a getopt `spec` matrix.
+#'
+#' @inheritParams getopt
+#' @return A character string with the usage message.
+#' @export
+#' @examples
+#' spec <- matrix(c(
+#'   'verbose', 'v', 2, "integer",
+#'   'help'   , 'h', 0, "logical",
+#'   'count'  , 'c', 1, "integer",
+#'   'mean'   , 'm', 1, "double",
+#'   'sd'     , 's', 1, "double"
+#' ), byrow = TRUE, ncol = 4)
+#' cat(getusage(spec))
+getusage <- function(spec, command = get_Rscript_filename()) {
+	spec <- as_spec(spec)
+
+	ncol <- dim(spec)[2L]
+
+	ret <- ""
+	ret <- paste(ret, "Usage: ", command, sep = "")
+	for (j in 1L:(dim(spec))[1L]) {
+		ret <- paste(
+			ret,
+			" [-[-",
+			spec[j, COL_LONG_NAME],
+			"|",
+			spec[j, COL_SHORT_NAME],
+			"]",
+			sep = ""
+		)
+		if (spec[j, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
+			ret <- paste(ret, "]", sep = "")
+		} else if (spec[j, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
+			ret <- paste(ret, " <", spec[j, COL_MODE], ">]", sep = "")
+		} else if (spec[j, COL_HAS_ARGUMENT] == FLAG_OPTIONAL_ARGUMENT) {
+			ret <- paste(ret, " [<", spec[j, COL_MODE], ">]]", sep = "")
+		}
+	}
+	# include usage strings
+	if (ncol >= 5L) {
+		max.long <- max(apply(cbind(spec[, COL_LONG_NAME]), 1L, function(x) {
+			length(strsplit(x, "")[[1L]])
+		}))
+		ret <- paste(ret, "\n", sep = "")
+		for (j in 1L:(dim(spec))[1L]) {
+			ret <- paste(
+				ret,
+				sprintf(
+					paste("    -%s|--%-", max.long, "s    %s\n", sep = ""),
+					spec[j, COL_SHORT_NAME],
+					spec[j, COL_LONG_NAME],
+					spec[j, COL_DESCRIPTION]
+				),
+				sep = ""
+			)
+		}
+	} else {
+		ret <- paste(ret, "\n", sep = "")
+	}
+	ret
+}
+
+as_spec <- function(spec) {
+	ncol <- 4L
+	maxcol <- 6L
+
+	if (is.null(spec)) {
+		stop('argument "spec" must be non-null.')
+	} else if (!is.matrix(spec)) {
+		if (length(spec) %% 4L == 0L) {
+			warning(
+				'argument "spec" was coerced to a 4-column (row-major) matrix.  use a matrix to prevent the coercion'
+			)
+			spec <- matrix(spec, ncol = ncol, byrow = TRUE)
+		} else {
+			stop(
+				'argument "spec" must be a matrix, or a character vector with length divisible by 4, rtfm.'
+			)
+		}
+	} else if (dim(spec)[2L] < ncol) {
+		stop(paste('"spec" should have at least ', ncol, " columns.", sep = ""))
+	} else if (dim(spec)[2L] > maxcol) {
+		stop(paste('"spec" should have no more than ', maxcol, " columns.", sep = ""))
+	}
+
+	# sanity check.  make sure long names are unique, and short names are unique.
+	if (length(unique(spec[, COL_LONG_NAME])) != length(spec[, COL_LONG_NAME])) {
+		stop(paste(
+			"redundant long names for flags (column ",
+			COL_LONG_NAME,
+			" of spec matrix).",
+			sep = ""
+		))
+	}
+	if (
+		length(stats::na.omit(unique(spec[, COL_SHORT_NAME]))) !=
+			length(stats::na.omit(spec[, COL_SHORT_NAME]))
+	) {
+		stop(paste(
+			"redundant short names for flags (column ",
+			COL_SHORT_NAME,
+			" of spec matrix).",
+			sep = ""
+		))
+	}
+
+	# convert numeric type to double type
+	spec[, COL_MODE] <- gsub("numeric", "double", spec[, COL_MODE])
+
+	# XXX check spec validity here.  e.g. column three should be convertible to integer
+
+	spec
 }
