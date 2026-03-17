@@ -1,6 +1,8 @@
 getopt 1.21.0 (development)
 ===========================
 * New `getusage()` function generates a usage string from a getopt `spec` matrix.
+* The `spec` argument of `getopt()` and `getusage()` may now also be a 4-5 column data frame
+  (which will be silently coerced to a matrix).
 
 getopt 1.20.4
 =============

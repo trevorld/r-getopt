@@ -1,3 +1,60 @@
+# getopt works as expected
+
+    Code
+      cat(getopt(spec2, usage = TRUE))
+    Output
+      Usage: NA [-[-date|d] <character>] [-[-help|h]] [-[-getdata|g]] [-[-market|m] <character>] [-[-threshold|t] <double>]
+
+# more helpful warnings upon incorrect input
+
+    Code
+      spec <- matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE)
+      getopt(spec, c("-c", "hello"))$count
+    Condition
+      Warning in `value[[3L]]()`:
+      integer expected, got "hello"
+    Output
+      [1] "hello"
+
+---
+
+    Code
+      spec <- NULL
+      getopt(spec, "")
+    Condition
+      Error in `as_spec()`:
+      ! argument "spec" must be a matrix, data frame, or character vector with length divisible by 4.
+    Code
+      spec <- c("foo", "f", 0)
+      getopt(spec, "")
+    Condition
+      Error in `as_spec()`:
+      ! argument "spec" must be a matrix, data frame, or character vector with length divisible by 4.
+    Code
+      spec <- matrix(c("foo", "f", 0, "integer"), ncol = 2)
+      getopt(spec, "")
+    Condition
+      Error in `as_spec()`:
+      ! "spec" should have at least 4 columns.
+    Code
+      spec <- matrix(c("foo", "f", 0, "integer", "bar", "b", 0, "integer"), ncol = 8)
+      getopt(spec, "")
+    Condition
+      Error in `as_spec()`:
+      ! "spec" should have no more than 6 columns.
+
+# Optional usage strings work as expected
+
+    Code
+      cat(getopt(spec, usage = TRUE))
+    Output
+      Usage: NA [-[-foo|f]] [-[-foobar|b] <character>] [-[-biz|z] [<logical>]] [-[-number|n] <double>] [-[-help|h]]
+          -f|--foo       foo usage
+          -b|--foobar    foobar usage
+          -z|--biz       biz usage
+          -n|--number    number usage
+          -h|--help      help
+
 # debug output
 
     Code

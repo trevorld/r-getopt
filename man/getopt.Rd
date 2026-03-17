@@ -15,15 +15,15 @@ getopt(
 }
 \arguments{
 \item{spec}{The getopt specification, or spec of what options are considered
-valid.  The specification must be either a 4-5 column matrix, or a
+valid.  The specification must be either a 4-5 column matrix, a 4-5 column data frame, or a
 character vector coercible into a 4 column matrix using
-\code{matrix(x,ncol=4,byrow=TRUE)} command.  The matrix/vector
+\code{matrix(x, ncol = 4L, byrow = TRUE)} command.  The matrix/vector
 contains:
 
 Column 1: the \emph{long flag} name.  A multi-character string.
 
-Column 2: \emph{short flag} alias of Column 1.  A single-character
-string.
+Column 2: \emph{short flag} alias of Column 1.  A single-character string.
+May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
 Possible values: 0=no argument, 1=required argument, 2=optional argument.

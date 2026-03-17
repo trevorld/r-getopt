@@ -98,15 +98,15 @@
 #'
 #' @aliases getopt getopt-package
 #' @param spec The getopt specification, or spec of what options are considered
-#' valid.  The specification must be either a 4-5 column matrix, or a
+#' valid.  The specification must be either a 4-5 column matrix, a 4-5 column data frame, or a
 #' character vector coercible into a 4 column matrix using
-#' `matrix(x,ncol=4,byrow=TRUE)` command.  The matrix/vector
+#' `matrix(x, ncol = 4L, byrow = TRUE)` command.  The matrix/vector
 #' contains:
 #'
 #' Column 1: the \emph{long flag} name.  A multi-character string.
 #'
-#' Column 2: \emph{short flag} alias of Column 1.  A single-character
-#' string.
+#' Column 2: \emph{short flag} alias of Column 1.  A single-character string.
+#' May be `NA_character_` if there is no short flag.
 #'
 #' Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
 #' Possible values: 0=no argument, 1=required argument, 2=optional argument.
@@ -138,7 +138,7 @@
 #' @param usage If `TRUE`, argument `opt` will be ignored and a usage
 #' statement (character string) will be generated and returned from `spec`.
 #' @param debug This is used internally to debug the `getopt()` function itself.
-#' @author Allen Day
+#' @author Allen Day and Trevor L. Davis
 #' @keywords data
 #' @export
 #' @examples
@@ -471,20 +471,20 @@ getusage <- function(spec, command = get_Rscript_filename()) {
 }
 
 as_spec <- function(spec) {
-	if (is.null(spec)) {
-		stop('argument "spec" must be non-null.')
+	if (is.data.frame(spec)) {
+		spec <- as.matrix(spec)
+	} else if (is.vector(spec) && is.character(spec) && length(spec) %% 4L == 0L) {
+		warning(
+			'argument "spec" was coerced to a 4-column (row-major) matrix.  use a matrix to prevent the coercion'
+		)
+		spec <- matrix(spec, ncol = 4L, byrow = TRUE)
 	} else if (!is.matrix(spec)) {
-		if (length(spec) %% 4L == 0L) {
-			warning(
-				'argument "spec" was coerced to a 4-column (row-major) matrix.  use a matrix to prevent the coercion'
-			)
-			spec <- matrix(spec, ncol = 4L, byrow = TRUE)
-		} else {
-			stop(
-				'argument "spec" must be a matrix, or a character vector with length divisible by 4.'
-			)
-		}
-	} else if (ncol(spec) < 4L) {
+		stop(
+			'argument "spec" must be a matrix, data frame, or character vector with length divisible by 4.'
+		)
+	}
+
+	if (ncol(spec) < 4L) {
 		stop('"spec" should have at least 4 columns.')
 	} else if (ncol(spec) > 6L) {
 		stop('"spec" should have no more than 6 columns.')
