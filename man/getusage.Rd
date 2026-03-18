@@ -18,14 +18,18 @@ Column 1: the \emph{long flag} name.  A multi-character string.
 Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
-Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
-Possible values: 0=no argument, 1=required argument, 2=optional argument.
+Column 3: \emph{Action} of the \emph{flag}.  A string.
+Possible values: \code{"store_true"} (flag takes no argument; stores \code{TRUE}),
+\code{"store"} (flag takes a required argument),
+\code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE}).
+For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases for
+\code{"store_true"}, \code{"store"}, \code{"store_optional"} respectively.
 
 Column 4: Data type to which the \emph{flag}'s argument shall be cast using
 \code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.  This only considered
-for same-row Column 3 values of 1,2.  Possible values: logical,
-integer, double, complex, character.
-If numeric is encountered then it will be converted to double.
+for same-row Column 3 values of 1,2.
+Possible values: "logical", "integer", "double", "complex", "character".
+"numeric" is treated as an alias for "double".
 
 Column 5 (optional): A brief description of the purpose of the option.
 

@@ -1,42 +1,15 @@
 test_that("getopt works as expected", {
-	spec <- matrix(
-		c(
-			"verbose",
-			"v",
-			2,
-			"integer",
-			"help",
-			"h",
-			0,
-			"logical",
-			"dummy1",
-			"d",
-			0,
-			"logical",
-			"dummy2",
-			"e",
-			2,
-			"logical",
-			"count",
-			"c",
-			1,
-			"integer",
-			"mean",
-			"m",
-			1,
-			"double",
-			"sd",
-			"s",
-			1,
-			"double",
-			"output",
-			"O",
-			1,
-			"character"
-		),
-		ncol = 4,
-		byrow = TRUE
-	)
+	# fmt: skip
+	spec <- matrix(c(
+		"verbose", "v", 2, "integer",
+		"help"   , "h", 0, "logical",
+		"dummy1" , "d", 0, "logical",
+		"dummy2" , "e", 2, "logical",
+		"count"  , "c", 1, "integer",
+		"mean"   , "m", 1, "double",
+		"sd"     , "s", 1, "double",
+		"output" , "O", 1, "character"
+	), ncol = 4, byrow = TRUE)
 	expect_equal(
 		sort_list(getopt(spec, c("-c", "-1", "-m", "-1.2"))),
 		sort_list(list(ARGS = character(0), count = -1, mean = -1.2))
@@ -95,27 +68,13 @@ test_that("getopt works as expected", {
 		sort_list(getopt(spec, c("--mean=5", "--sd", "5", "--verbose")))
 	)
 
+	# fmt: skip
 	spec <- c(
-		"date",
-		"d",
-		1,
-		"character",
-		"help",
-		"h",
-		0,
-		"logical",
-		"getdata",
-		"g",
-		0,
-		"logical",
-		"market",
-		"m",
-		1,
-		"character",
-		"threshold",
-		"t",
-		1,
-		"double"
+		"date"     , "d", 1, "character",
+		"help"     , "h", 0, "logical",
+		"getdata"  , "g", 0, "logical",
+		"market"   , "m", 1, "character",
+		"threshold", "t", 1, "double"
 	)
 	spec2 <- matrix(spec, ncol = 4, byrow = TRUE)
 	# should give warning is spec is not matrix
@@ -140,16 +99,27 @@ test_that("numeric is cast to double", {
 	opt <- getopt(spec, c("-c", "-55.0"))
 	expect_equal(typeof(opt$count), "double")
 })
+test_that("action strings work as alternatives to 0/1/2", {
+	# fmt: skip
+	spec <- matrix(c(
+		"foo", "f", "store_true"    , "logical",
+		"bar", "b", "store"         , "character",
+		"biz", "z", "store_optional", "logical"
+	), ncol = 4, byrow = TRUE)
+	expect_equal(getopt(spec, "-f")$foo, TRUE)
+	expect_equal(getopt(spec, c("-b", "hello"))$bar, "hello")
+	expect_equal(getopt(spec, "-z")$biz, TRUE)
+})
 test_that("data.frame spec is coerced to matrix", {
 	spec <- as.data.frame(matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE))
 	expect_equal(getopt(spec, c("-c", "5"))$count, 5L)
 })
 test_that("empty strings are handled correctly for mandatory character arguments", {
-	spec <- matrix(
-		c("string", "s", 1, "character", "number", "n", 1, "numeric"),
-		ncol = 4,
-		byrow = TRUE
-	)
+	# fmt: skip
+	spec <- matrix(c(
+		"string", "s", 1, "character",
+		"number", "n", 1, "numeric"
+	), ncol = 4, byrow = TRUE)
 	expect_equal(getopt(spec, c("--string=foo"))$string, "foo")
 	expect_equal(getopt(spec, c("--string="))$string, "")
 	expect_warning(getopt(spec, c("--number=")))
@@ -193,6 +163,12 @@ test_that("more helpful warnings upon incorrect input", {
 
 			spec <- matrix(c("foo", "f", 0, "integer", "bar", "b", 0, "integer"), ncol = 8)
 			getopt(spec, "")
+
+			spec <- matrix(c("foo", "f", "store_sideways", "logical"), ncol = 4, byrow = TRUE)
+			getopt(spec, "")
+
+			spec <- matrix(c("foo", "f", 0, "bignum"), ncol = 4, byrow = TRUE)
+			getopt(spec, "")
 		},
 		error = TRUE
 	)
@@ -202,24 +178,12 @@ test_that("don't throw error if multiple matches match one argument fully", {
 	# test if partial name matches fully,
 	# still throw error if multiple matches and doesn't match both fully
 	# feature request from Jonas Zimmermann
-	spec <- matrix(
-		c(
-			"foo",
-			"f",
-			0,
-			"logical",
-			"foobar",
-			"b",
-			0,
-			"logical",
-			"biz",
-			"z",
-			0,
-			"logical"
-		),
-		ncol = 4,
-		byrow = TRUE
-	)
+	# fmt: skip
+	spec <- matrix(c(
+		"foo"   , "f", 0, "logical",
+		"foobar", "b", 0, "logical",
+		"biz"   , "z", 0, "logical"
+	), ncol = 4, byrow = TRUE)
 	expect_error(getopt(spec, c("--fo")))
 	expect_equal(getopt(spec, c("--foo")), sort_list(list(ARGS = character(0), foo = TRUE)))
 })
@@ -245,72 +209,26 @@ test_that("Use h flag for non help", {
 })
 
 test_that("Optional usage strings work as expected", {
-	spec <- matrix(
-		c(
-			"foo",
-			"f",
-			0,
-			"logical",
-			"foo usage",
-			"foobar",
-			"b",
-			1,
-			"character",
-			"foobar usage",
-			"biz",
-			"z",
-			2,
-			"logical",
-			"biz usage",
-			"number",
-			"n",
-			1,
-			"numeric",
-			"number usage",
-			"help",
-			"h",
-			0,
-			"logical",
-			"help"
-		),
-		ncol = 5,
-		byrow = TRUE
-	)
+	# fmt: skip
+	spec <- matrix(c(
+		"foo"   , "f", 0, "logical"  , "foo usage",
+		"foobar", "b", 1, "character", "foobar usage",
+		"biz"   , "z", 2, "logical"  , "biz usage",
+		"number", "n", 1, "numeric"  , "number usage",
+		"help"  , "h", 0, "logical"  , "help"
+	), ncol = 5, byrow = TRUE)
 	expect_snapshot(cat(getopt(spec, usage = TRUE)))
 })
 
 test_that("tests to get coverage up", {
-	spec <- matrix(
-		c(
-			"foo",
-			"f",
-			0,
-			"logical",
-			"foo usage",
-			"foobar",
-			"b",
-			1,
-			"character",
-			"foobar usage",
-			"biz",
-			"z",
-			2,
-			"logical",
-			"biz usage",
-			"number",
-			"n",
-			1,
-			"numeric",
-			"number usage",
-			"help",
-			"h",
-			0,
-			"logical",
-			"help"
-		),
-		ncol = 5,
-		byrow = TRUE
-	)
+	# fmt: skip
+	spec <- matrix(c(
+		"foo"   , "f", 0, "logical"  , "foo usage",
+		"foobar", "b", 1, "character", "foobar usage",
+		"biz"   , "z", 2, "logical"  , "biz usage",
+		"number", "n", 1, "numeric"  , "number usage",
+		"help"  , "h", 0, "logical"  , "help"
+	), ncol = 5, byrow = TRUE)
 	expect_error(getopt(spec, "--whodunit"), 'long flag "whodunit" is invalid')
 
 	expect_error(getopt(spec, "--foo=4"), 'long flag "foo" accepts no arguments')

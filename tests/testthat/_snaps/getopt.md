@@ -42,6 +42,18 @@
     Condition
       Error in `as_spec()`:
       ! "spec" should have no more than 6 columns.
+    Code
+      spec <- matrix(c("foo", "f", "store_sideways", "logical"), ncol = 4, byrow = TRUE)
+      getopt(spec, "")
+    Condition
+      Error in `as_spec()`:
+      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "store_true", "store", "store_optional".
+    Code
+      spec <- matrix(c("foo", "f", 0, "bignum"), ncol = 4, byrow = TRUE)
+      getopt(spec, "")
+    Condition
+      Error in `as_spec()`:
+      ! column 4 of "spec" contains invalid mode(s): "bignum".  Valid modes: "logical", "integer", "double", "complex", "character".
 
 # Optional usage strings work as expected
 

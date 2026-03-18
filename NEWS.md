@@ -1,9 +1,14 @@
 getopt 1.21.0 (development)
 ===========================
-* New function ``getfile()`` returns name of calling script, it is an alias of pre-existing `get_Rscript_filename()`.
+* New ``getfile()`` function returns name of calling script, it is an alias of pre-existing `get_Rscript_filename()`.
 * New `getusage()` function generates a usage string from a getopt `spec` matrix.
 * The `spec` argument of `getopt()` and `getusage()` may now also be a 4-5 column data frame
   (which will be silently coerced to a matrix).
+* `getopt()` and `getusage()` now support action strings in column 3 of `spec`:
+
+  + `"store"` stores argument value, legacy `1` supported as an alias.
+  + `"store_optional"` stores argument value if present otherwise stores `TRUE`,  legacy `2` supported as an alias.
+  + `"store_true"` stores `TRUE`, legacy `0` supported as an alias.
 
 getopt 1.20.4
 =============

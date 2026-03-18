@@ -55,13 +55,14 @@
 #'
 #' Features available in `getopt` unavailable in `optparse`
 #'
-#' 1. As well as allowing one to specify options that take either
-#'    no argument or a required argument like `optparse`,
-#'    `getopt` also allows one to specify option with an optional argument.
+#' 1. `getopt` allows one to specify options with an optional argument.
 #'
-#' Some features implemented in `optparse` package unavailable in `getopt`
+#' 2. Long flags may be abbreviated as long as the abbreviation is unique,
+#' e.g. `--verb` matches `--verbose` if no other long flag starts with `verb`.
 #'
-#' 1. Limited support for capturing positional arguments after the optional arguments
+#' Some features implemented in the `optparse` package unavailable in `getopt`
+#'
+#' 1. Support for capturing positional arguments after the optional arguments
 #' when `positional_arguments` set to `TRUE` in `optparse::parse_args()`
 #'
 #' 2. Automatic generation of an help option and printing of help text when encounters an `-h`
@@ -69,9 +70,9 @@
 #' 3. Option to specify default arguments for options as well the
 #'    variable name to store option values
 #'
-#' There is also new package `argparse` introduced in 2012 which contains
-#' all the features of both getopt and optparse but which has a dependency on
-#' Python 2.7 or 3.2+.
+#' There is also package `argparse` supports
+#' all the features of both getopt and optparse (plus more)
+#  but which has a dependency on Python 2.7 or 3.2+.
 #'
 #' Some Features unlikely to be implemented in `getopt`:
 #'
@@ -88,10 +89,7 @@
 #' 4. Support for incremental, argument-less flags, e.g. `/path/to/script
 #' -vvv` should set `v=3`.
 #'
-#' 5. Support partial-but-unique string match on options, e.g. `--verb` and
-#' `--verbose` both match long flag `--verbose`.
-#'
-#' 6. No support for mixing in positional arguments or extra arguments that
+#' 5. No support for mixing in positional arguments or extra arguments that
 #' don't match any options.  For example, you can't do `my.R --arg1 1 foo bar
 #' baz` and recover `foo`, `bar`, `baz` as a list.  Likewise for `my.R foo
 #' --arg1 1 bar baz`.
@@ -108,14 +106,18 @@
 #' Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 #' May be `NA_character_` if there is no short flag.
 #'
-#' Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
-#' Possible values: 0=no argument, 1=required argument, 2=optional argument.
+#' Column 3: \emph{Action} of the \emph{flag}.  A string.
+#' Possible values: `"store_true"` (flag takes no argument; stores `TRUE`),
+#' `"store"` (flag takes a required argument),
+#' `"store_optional"` (flag takes an optional argument but if none present stores `TRUE`).
+#' For backwards compatibility `0`, `1`, `2` are accepted as aliases for
+#' `"store_true"`, `"store"`, `"store_optional"` respectively.
 #'
 #' Column 4: Data type to which the \emph{flag}'s argument shall be cast using
 #' [storage.mode()].  A multi-character string.  This only considered
-#' for same-row Column 3 values of 1,2.  Possible values: logical,
-#' integer, double, complex, character.
-#' If numeric is encountered then it will be converted to double.
+#' for same-row Column 3 values of 1,2.
+#' Possible values: "logical", "integer", "double", "complex", "character".
+#' "numeric" is treated as an alias for "double".
 #'
 #' Column 5 (optional): A brief description of the purpose of the option.
 #'
@@ -212,18 +214,17 @@ getopt <- function(
 		# long flag
 		if (startsWith(optstring, "--")) {
 			if (debug) {
-				cat("\tlong option:", opt[i], "\n")
+				cat("\tlong option:", optstring, "\n")
 			}
 
 			optstring <- substring(optstring, 3)
-
-			this_argument <- NA
 			if (grepl("=", optstring)) {
 				kv <- strsplit(optstring, "=")[[1L]]
 				this_flag <- kv[1L]
 				this_argument <- paste(kv[-1L], collapse = "=")
 			} else {
 				this_flag <- optstring
+				this_argument <- NA
 			}
 
 			rowmatch <- grep(this_flag, spec[, COL_LONG_NAME], fixed = TRUE)
@@ -244,7 +245,7 @@ getopt <- function(
 			# if we have an argument
 			if (!is.na(this_argument)) {
 				# if we can't accept the argument, bail out
-				if (spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
+				if (spec[rowmatch, COL_ACTION] == "store_true") {
 					stop(paste0('long flag "', this_flag, '" accepts no arguments'))
 
 					# otherwise assign the argument to the flag
@@ -268,7 +269,7 @@ getopt <- function(
 			} else {
 				# nolint start
 				# if we require an argument, bail out
-				### if (spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
+				### if (spec[rowmatch, COL_ACTION] == "store") {
 				###  stop(paste('long flag "', this_flag, '" requires an argument', sep = ""))
 
 				# long flag has no attached argument. set flag as present.
@@ -300,12 +301,12 @@ getopt <- function(
 					# short flag has an argument, but is not the last in a compound flag string
 				} else if (
 					j < length(these_flags) &&
-						spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT
+						spec[rowmatch, COL_ACTION] == "store"
 				) {
 					stop(paste0('short flag "', this_flag, '" requires an argument, but has none'))
 
 					# short flag has no argument, flag it as present
-				} else if (spec[rowmatch, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
+				} else if (spec[rowmatch, COL_ACTION] == "store_true") {
 					result[spec[rowmatch, COL_LONG_NAME]] <- TRUE
 					done <- TRUE
 
@@ -381,13 +382,13 @@ getopt <- function(
 					}
 
 					# if we require an argument, bail out
-					if (spec[current_flag, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
+					if (spec[current_flag, COL_ACTION] == "store") {
 						stop(paste0('flag "', this_flag, '" requires an argument'))
 
 						# otherwise set flag as present.
 					} else if (
-						spec[current_flag, COL_HAS_ARGUMENT] == FLAG_OPTIONAL_ARGUMENT ||
-							spec[current_flag, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT
+						spec[current_flag, COL_ACTION] == "store_optional" ||
+							spec[current_flag, COL_ACTION] == "store_true"
 					) {
 						x <- TRUE
 						storage.mode(x) <- spec[current_flag, COL_MODE]
@@ -401,13 +402,13 @@ getopt <- function(
 					}
 				}
 				# trailing flag without required argument
-			} else if (spec[current_flag, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
+			} else if (spec[current_flag, COL_ACTION] == "store") {
 				stop(paste0('flag "', this_flag, '" requires an argument'))
 
 				# trailing flag without optional or no argument
 			} else if (
-				spec[current_flag, COL_HAS_ARGUMENT] %in%
-					c(FLAG_OPTIONAL_ARGUMENT, FLAG_NO_ARGUMENT)
+				spec[current_flag, COL_ACTION] %in%
+					c("store_optional", "store_true")
 			) {
 				x <- TRUE
 				storage.mode(x) <- spec[current_flag, COL_MODE]
@@ -444,11 +445,11 @@ getusage <- function(spec, command = getfile()) {
 	ret <- paste0("Usage: ", command)
 	for (j in seq_len(nrow(spec))) {
 		ret <- paste0(ret, " [-[-", spec[j, COL_LONG_NAME], "|", spec[j, COL_SHORT_NAME], "]")
-		if (spec[j, COL_HAS_ARGUMENT] == FLAG_NO_ARGUMENT) {
+		if (spec[j, COL_ACTION] == "store_true") {
 			ret <- paste0(ret, "]")
-		} else if (spec[j, COL_HAS_ARGUMENT] == FLAG_REQUIRED_ARGUMENT) {
+		} else if (spec[j, COL_ACTION] == "store") {
 			ret <- paste0(ret, " <", spec[j, COL_MODE], ">]")
-		} else if (spec[j, COL_HAS_ARGUMENT] == FLAG_OPTIONAL_ARGUMENT) {
+		} else if (spec[j, COL_ACTION] == "store_optional") {
 			ret <- paste0(ret, " [<", spec[j, COL_MODE], ">]]")
 		}
 	}
@@ -503,10 +504,41 @@ as_spec <- function(spec) {
 		))
 	}
 
-	# convert numeric type to double type
-	spec[, COL_MODE] <- gsub("numeric", "double", spec[, COL_MODE])
+	# normalize legacy numeric action values to action strings
+	spec[, COL_ACTION] <- gsub("0", "store_true", spec[, COL_ACTION], fixed = TRUE)
+	spec[, COL_ACTION] <- gsub("1", "store", spec[, COL_ACTION], fixed = TRUE)
+	spec[, COL_ACTION] <- gsub("2", "store_optional", spec[, COL_ACTION], fixed = TRUE)
 
-	# XXX check spec validity here.  e.g. column three should be convertible to integer
+	valid_actions <- c("store_true", "store", "store_optional")
+	bad_actions <- setdiff(spec[, COL_ACTION], valid_actions)
+	if (length(bad_actions) > 0L) {
+		stop(paste0(
+			'column ',
+			COL_ACTION,
+			' of "spec" contains invalid action(s): ',
+			paste(dQuote(bad_actions), collapse = ", "),
+			'.  Valid actions: ',
+			paste(dQuote(valid_actions), collapse = ", "),
+			"."
+		))
+	}
+
+	# convert numeric type to double type
+	spec[, COL_MODE] <- gsub("numeric", "double", spec[, COL_MODE], fixed = TRUE)
+
+	valid_modes <- c("logical", "integer", "double", "complex", "character")
+	bad_modes <- setdiff(spec[, COL_MODE], valid_modes)
+	if (length(bad_modes) > 0L) {
+		stop(paste0(
+			'column ',
+			COL_MODE,
+			' of "spec" contains invalid mode(s): ',
+			paste(dQuote(bad_modes), collapse = ", "),
+			'.  Valid modes: ',
+			paste(dQuote(valid_modes), collapse = ", "),
+			"."
+		))
+	}
 
 	spec
 }
