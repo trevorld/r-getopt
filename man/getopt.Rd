@@ -25,14 +25,18 @@ Column 1: the \emph{long flag} name.  A multi-character string.
 Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
-Column 3: \emph{Argument} mask of the \emph{flag}.  An integer.
-Possible values: 0=no argument, 1=required argument, 2=optional argument.
+Column 3: \emph{Action} of the \emph{flag}.  A string.
+Possible values: \code{"store_true"} (flag takes no argument; stores \code{TRUE}),
+\code{"store"} (flag takes a required argument),
+\code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE}).
+For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases for
+\code{"store_true"}, \code{"store"}, \code{"store_optional"} respectively.
 
 Column 4: Data type to which the \emph{flag}'s argument shall be cast using
 \code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.  This only considered
-for same-row Column 3 values of 1,2.  Possible values: logical,
-integer, double, complex, character.
-If numeric is encountered then it will be converted to double.
+for same-row Column 3 values of 1,2.
+Possible values: "logical", "integer", "double", "complex", "character".
+"numeric" is treated as an alias for "double".
 
 Column 5 (optional): A brief description of the purpose of the option.
 
@@ -98,23 +102,22 @@ Here is some of the major differences:
 
 Features available in \code{getopt} unavailable in \code{optparse}
 \enumerate{
-\item As well as allowing one to specify options that take either
-no argument or a required argument like \code{optparse},
-\code{getopt} also allows one to specify option with an optional argument.
+\item \code{getopt} allows one to specify options with an optional argument.
+\item Long flags may be abbreviated as long as the abbreviation is unique,
+e.g. \code{--verb} matches \code{--verbose} if no other long flag starts with \code{verb}.
 }
 
-Some features implemented in \code{optparse} package unavailable in \code{getopt}
+Some features implemented in the \code{optparse} package unavailable in \code{getopt}
 \enumerate{
-\item Limited support for capturing positional arguments after the optional arguments
+\item Support for capturing positional arguments after the optional arguments
 when \code{positional_arguments} set to \code{TRUE} in \code{optparse::parse_args()}
 \item Automatic generation of an help option and printing of help text when encounters an \code{-h}
 \item Option to specify default arguments for options as well the
 variable name to store option values
 }
 
-There is also new package \code{argparse} introduced in 2012 which contains
-all the features of both getopt and optparse but which has a dependency on
-Python 2.7 or 3.2+.
+There is also package \code{argparse} supports
+all the features of both getopt and optparse (plus more)
 
 Some Features unlikely to be implemented in \code{getopt}:
 \enumerate{
@@ -125,8 +128,6 @@ typecast).
 \item Support for lists, e.g. \verb{--define os=linux --define os=redhat} would
 set \code{result$os$linux=TRUE} and \code{result$os$redhat=TRUE}.
 \item Support for incremental, argument-less flags, e.g. \verb{/path/to/script -vvv} should set \code{v=3}.
-\item Support partial-but-unique string match on options, e.g. \code{--verb} and
-\code{--verbose} both match long flag \code{--verbose}.
 \item No support for mixing in positional arguments or extra arguments that
 don't match any options.  For example, you can't do \verb{my.R --arg1 1 foo bar baz} and recover \code{foo}, \code{bar}, \code{baz} as a list.  Likewise for \verb{my.R foo --arg1 1 bar baz}.
 }
