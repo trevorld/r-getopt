@@ -110,6 +110,11 @@ test_that("action strings work as alternatives to 0/1/2", {
 	expect_equal(getopt(spec, c("-b", "hello"))$bar, "hello")
 	expect_equal(getopt(spec, "-z")$biz, TRUE)
 })
+test_that("store_false stores FALSE", {
+	spec <- matrix(c("verbose", "v", "store_false", "logical"), ncol = 4, byrow = TRUE)
+	expect_equal(getopt(spec, "-v")$verbose, FALSE)
+	expect_equal(getopt(spec, "--verbose")$verbose, FALSE)
+})
 test_that("data.frame spec is coerced to matrix", {
 	spec <- as.data.frame(matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE))
 	expect_equal(getopt(spec, c("-c", "5"))$count, 5L)

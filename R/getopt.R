@@ -108,6 +108,7 @@
 #'
 #' Column 3: \emph{Action} of the \emph{flag}.  A string.
 #' Possible values: `"store_true"` (flag takes no argument; stores `TRUE`),
+#' `"store_false"` (flag takes no argument; stores `FALSE`),
 #' `"store"` (flag takes a required argument),
 #' `"store_optional"` (flag takes an optional argument but if none present stores `TRUE`).
 #' For backwards compatibility `0`, `1`, `2` are accepted as aliases for
@@ -245,7 +246,7 @@ getopt <- function(
 			# if we have an argument
 			if (!is.na(this_argument)) {
 				# if we can't accept the argument, bail out
-				if (spec[rowmatch, COL_ACTION] == "store_true") {
+				if (spec[rowmatch, COL_ACTION] %in% c("store_true", "store_false")) {
 					stop(paste0('long flag "', this_flag, '" accepts no arguments'))
 
 					# otherwise assign the argument to the flag
@@ -276,7 +277,7 @@ getopt <- function(
 				# set current_flag so we can peek ahead later and consume the argument if it's there
 				# nolint end
 				###} else {
-				result[spec[rowmatch, COL_LONG_NAME]] <- TRUE
+				result[spec[rowmatch, COL_LONG_NAME]] <- spec[rowmatch, COL_ACTION] != "store_false"
 				current_flag <- rowmatch
 				###}
 			}
@@ -306,8 +307,9 @@ getopt <- function(
 					stop(paste0('short flag "', this_flag, '" requires an argument, but has none'))
 
 					# short flag has no argument, flag it as present
-				} else if (spec[rowmatch, COL_ACTION] == "store_true") {
-					result[spec[rowmatch, COL_LONG_NAME]] <- TRUE
+				} else if (spec[rowmatch, COL_ACTION] %in% c("store_true", "store_false")) {
+					result[spec[rowmatch, COL_LONG_NAME]] <- spec[rowmatch, COL_ACTION] !=
+						"store_false"
 					done <- TRUE
 
 					# can't definitively process this_flag flag yet, need to see if next option is an argument or not
@@ -387,10 +389,10 @@ getopt <- function(
 
 						# otherwise set flag as present.
 					} else if (
-						spec[current_flag, COL_ACTION] == "store_optional" ||
-							spec[current_flag, COL_ACTION] == "store_true"
+						spec[current_flag, COL_ACTION] %in%
+							c("store_optional", "store_true", "store_false")
 					) {
-						x <- TRUE
+						x <- spec[current_flag, COL_ACTION] != "store_false"
 						storage.mode(x) <- spec[current_flag, COL_MODE]
 						result[spec[current_flag, COL_LONG_NAME]] <- x
 					} else {
@@ -408,9 +410,9 @@ getopt <- function(
 				# trailing flag without optional or no argument
 			} else if (
 				spec[current_flag, COL_ACTION] %in%
-					c("store_optional", "store_true")
+					c("store_optional", "store_true", "store_false")
 			) {
-				x <- TRUE
+				x <- spec[current_flag, COL_ACTION] != "store_false"
 				storage.mode(x) <- spec[current_flag, COL_MODE]
 				result[spec[current_flag, COL_LONG_NAME]] <- x
 			} else {
@@ -445,7 +447,7 @@ getusage <- function(spec, command = getfile()) {
 	ret <- paste0("Usage: ", command)
 	for (j in seq_len(nrow(spec))) {
 		ret <- paste0(ret, " [-[-", spec[j, COL_LONG_NAME], "|", spec[j, COL_SHORT_NAME], "]")
-		if (spec[j, COL_ACTION] == "store_true") {
+		if (spec[j, COL_ACTION] %in% c("store_true", "store_false")) {
 			ret <- paste0(ret, "]")
 		} else if (spec[j, COL_ACTION] == "store") {
 			ret <- paste0(ret, " <", spec[j, COL_MODE], ">]")
@@ -509,7 +511,7 @@ as_spec <- function(spec) {
 	spec[, COL_ACTION] <- gsub("1", "store", spec[, COL_ACTION], fixed = TRUE)
 	spec[, COL_ACTION] <- gsub("2", "store_optional", spec[, COL_ACTION], fixed = TRUE)
 
-	valid_actions <- c("store_true", "store", "store_optional")
+	valid_actions <- c("store", "store_false", "store_optional", "store_true")
 	bad_actions <- setdiff(spec[, COL_ACTION], valid_actions)
 	if (length(bad_actions) > 0L) {
 		stop(paste0(
@@ -526,7 +528,7 @@ as_spec <- function(spec) {
 	# convert numeric type to double type
 	spec[, COL_MODE] <- gsub("numeric", "double", spec[, COL_MODE], fixed = TRUE)
 
-	valid_modes <- c("logical", "integer", "double", "complex", "character")
+	valid_modes <- c("character", "complex", "double", "integer", "logical")
 	bad_modes <- setdiff(spec[, COL_MODE], valid_modes)
 	if (length(bad_modes) > 0L) {
 		stop(paste0(
