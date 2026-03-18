@@ -178,10 +178,14 @@
 getopt <- function(
 	spec = NULL,
 	opt = NULL,
-	command = get_Rscript_filename(),
+	command = getfile(),
 	usage = FALSE,
 	debug = FALSE
 ) {
+	if (usage) {
+		return(getusage(spec, command))
+	}
+
 	# littler compatibility - map argv vector to opt
 	if (is.null(opt)) {
 		if (exists("argv", where = .GlobalEnv, inherits = FALSE)) {
@@ -195,9 +199,6 @@ getopt <- function(
 
 	spec <- as_spec(spec)
 
-	if (usage) {
-		return(getusage(spec, command))
-	}
 	i <- 1L
 
 	while (i <= length(opt)) {
@@ -437,7 +438,7 @@ getopt <- function(
 #'   'sd'     , 's', 1, "double"
 #' ), byrow = TRUE, ncol = 4)
 #' cat(getusage(spec, command = "myscript"))
-getusage <- function(spec, command = get_Rscript_filename()) {
+getusage <- function(spec, command = getfile()) {
 	spec <- as_spec(spec)
 
 	ret <- paste0("Usage: ", command)

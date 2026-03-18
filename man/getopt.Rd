@@ -8,7 +8,7 @@
 getopt(
   spec = NULL,
   opt = NULL,
-  command = get_Rscript_filename(),
+  command = getfile(),
   usage = FALSE,
   debug = FALSE
 )
@@ -167,6 +167,6 @@ cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
 # q(status = 0L)
 }
 \author{
-Allen Day
+Allen Day and Trevor L. Davis
 }
 \keyword{data}

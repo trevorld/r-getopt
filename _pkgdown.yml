@@ -5,9 +5,11 @@ development:
 template:
   bootstrap: 5
 reference:
-  - title: "Functions"
+  - title: "Main functions"
     contents:
       - getopt
-      - get_Rscript_filename
       - getusage
+  - title: "Utility functions"
+    contents:
+      - getfile
       - sort_list
