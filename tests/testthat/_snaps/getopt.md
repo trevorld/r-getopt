@@ -47,7 +47,7 @@
       getopt(spec, "")
     Condition
       Error in `as_spec()`:
-      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "store_true", "store", "store_optional".
+      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "store_true", "store_false", "store", "store_optional".
     Code
       spec <- matrix(c("foo", "f", 0, "bignum"), ncol = 4, byrow = TRUE)
       getopt(spec, "")

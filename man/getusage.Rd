@@ -20,6 +20,7 @@ May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Action} of the \emph{flag}.  A string.
 Possible values: \code{"store_true"} (flag takes no argument; stores \code{TRUE}),
+\code{"store_false"} (flag takes no argument; stores \code{FALSE}),
 \code{"store"} (flag takes a required argument),
 \code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE}).
 For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases for
