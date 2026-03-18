@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2013 Trevor L. Davis <trevor.l.davis@gmail.com>
+# Copyright (c) 2011-2026 Trevor L. Davis <trevor.l.davis@gmail.com>
 #
 #  This file is free software: you may copy, redistribute and/or modify it
 #  under the terms of the GNU General Public License as published by the
@@ -15,18 +15,29 @@
 
 #' Returns file name being interpreted by Rscript
 #'
-#' `get_Rscript_filename()` returns the file name that `Rscript` is interpreting.
+#' `getfile()` returns the file name that `Rscript` is interpreting.
+#' `get_Rscript_filename()` is an alias.
 #' @return A string with the filename of the calling script.
 #'      If not found (i.e. you are in a interactive session) returns `NA_character_`.
 #' @export
-get_Rscript_filename <- function() {
-	# nolint
-	prog <- sub("--file=", "", grep("--file=", commandArgs(), value = TRUE)[1])
+getfile <- function() {
+	args <- command_args()
+	args_idx <- match("--args", args)
+	if (!is.na(args_idx)) {
+		args <- args[seq_len(args_idx - 1L)]
+	}
+	prog <- sub("--file=", "", grep("^--file=", args, value = TRUE)[1L])
 	if (.Platform$OS.type == "windows") {
 		prog <- gsub("\\\\", "\\\\\\\\", prog)
 	}
 	prog
 }
+
+#' @rdname getfile
+#' @export
+get_Rscript_filename <- getfile
+
+command_args <- function() commandArgs()
 
 na_omit <- function(x) {
 	Filter(Negate(is.na), x)

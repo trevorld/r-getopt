@@ -4,7 +4,7 @@
 \alias{getusage}
 \title{Generate a usage string}
 \usage{
-getusage(spec, command = get_Rscript_filename())
+getusage(spec, command = getfile())
 }
 \arguments{
 \item{spec}{The getopt specification, or spec of what options are considered
