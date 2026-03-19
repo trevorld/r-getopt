@@ -125,6 +125,15 @@ test_that("count increments each time flag is used", {
 	expect_equal(getopt(spec, "--verbose")$verbose, 1L)
 	expect_equal(getopt(spec, c("--verbose", "--verbose"))$verbose, 2L)
 })
+test_that("append collects repeated flag values into a vector", {
+	spec <- matrix(c("path", "p", "append", "character"), ncol = 4, byrow = TRUE)
+	expect_null(getopt(spec, character(0))$path)
+	expect_equal(getopt(spec, c("-p", "foo"))$path, "foo")
+	expect_equal(getopt(spec, c("-p", "foo", "-p", "bar"))$path, c("foo", "bar"))
+	expect_equal(getopt(spec, c("--path", "foo", "--path", "bar"))$path, c("foo", "bar"))
+	expect_equal(getopt(spec, c("--path=foo", "--path=bar"))$path, c("foo", "bar"))
+	expect_snapshot(error = TRUE, getopt(spec, "-p"))
+})
 test_that("data.frame spec is coerced to matrix", {
 	spec <- as.data.frame(matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE))
 	expect_equal(getopt(spec, c("-c", "5"))$count, 5L)

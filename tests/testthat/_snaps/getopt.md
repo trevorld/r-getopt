@@ -5,6 +5,14 @@
     Output
       Usage: NA [-[-date|d] <character>] [-[-help|h]] [-[-getdata|g]] [-[-market|m] <character>] [-[-threshold|t] <double>]
 
+# append collects repeated flag values into a vector
+
+    Code
+      getopt(spec, "-p")
+    Condition
+      Error in `getopt()`:
+      ! flag `p` requires an argument
+
 # more helpful warnings upon incorrect input
 
     Code
@@ -47,7 +55,7 @@
       getopt(spec, "")
     Condition
       Error in `as_spec()`:
-      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "count", "store", "store_false", "store_optional", "store_true".
+      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "append", "count", "store", "store_false", "store_optional", "store_true".
     Code
       spec <- matrix(c("foo", "f", 0, "bignum"), ncol = 4, byrow = TRUE)
       getopt(spec, "")

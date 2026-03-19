@@ -76,16 +76,10 @@
 #'
 #' Some Features unlikely to be implemented in `getopt`:
 #'
-#' 1. Support for multi-valued flags, e.g. `--libpath=/usr/local/lib
-#' --libpath=/tmp/foo`.
-#'
-#' 2. Support for lists, e.g. `--define os=linux --define os=redhat` would
+#' 1. Support for lists, e.g. `--define os=linux --define os=redhat` would
 #' set `result$os$linux=TRUE` and `result$os$redhat=TRUE`.
 #'
-#' 3. Support for incremental, argument-less flags, e.g. `/path/to/script
-#' -vvv` should set `v=3`.
-#'
-#' 4. No support for mixing in positional arguments or extra arguments that
+#' 2. No support for mixing in positional arguments or extra arguments that
 #' don't match any options.  For example, you can't do `my.R --arg1 1 foo bar
 #' baz` and recover `foo`, `bar`, `baz` as a list.  Likewise for `my.R foo
 #' --arg1 1 bar baz`.
@@ -103,7 +97,8 @@
 #' May be `NA_character_` if there is no short flag.
 #'
 #' Column 3: \emph{Action} of the \emph{flag}.  A string.
-#' Possible values: `"count"` (flag takes no argument; stores count of how many times the flag was present),
+#' Possible values: `"append"` (flag takes a required argument; appends it to a vector each time the flag is used),
+#' `"count"` (flag takes no argument; stores count of how many times the flag was present),
 #' `"store_true"` (flag takes no argument; stores `TRUE`),
 #' `"store_false"` (flag takes no argument; stores `FALSE`),
 #' `"store"` (flag takes a required argument),
@@ -251,8 +246,12 @@ getopt <- function(
 				# if we can't accept the argument, bail out
 				if (action %in% c("store_true", "store_false", "count")) {
 					stop(paste0('long flag "', this_flag, '" accepts no arguments'))
+				} else if (action == "append") {
+					result[[long_name]] <- c(result[[long_name]], this_argument)
+					i <- i + 1L
+					next
 				} else {
-					result[long_name] <- this_argument
+					result[[long_name]] <- this_argument
 					i <- i + 1L
 					next
 				}
@@ -308,7 +307,11 @@ getopt <- function(
 					if (debug) {
 						cat("\t\t\t\tconsuming argument", sQuote(peek_optstring), "\n")
 					}
-					result[long_name] <- peek_optstring
+					if (action == "append") {
+						result[[long_name]] <- c(result[[long_name]], peek_optstring)
+					} else {
+						result[[long_name]] <- peek_optstring
+					}
 					i <- i + 2L
 					next
 				}
@@ -318,7 +321,7 @@ getopt <- function(
 			if (debug) {
 				cat("\t\t\t\tno argument!\n")
 			}
-			if (action == "store") {
+			if (action %in% c("store", "append")) {
 				stop(paste0('flag `', this_flag, '` requires an argument'))
 			} else {
 				# action == "store_optional"
@@ -339,8 +342,12 @@ getopt <- function(
 					warning(paste(mode, "expected, got", dQuote(val)))
 				}
 			)
-			if (is.na(result[[long_name]]) && !is.na(val)) {
-				warning(paste(mode, "expected, got", dQuote(val)))
+			if (any(is.na(result[[long_name]]) & !is.na(val))) {
+				warning(paste(
+					mode,
+					"expected, got",
+					paste(dQuote(val[is.na(result[[long_name]]) & !is.na(val)]), collapse = ", ")
+				))
 			}
 		}
 	}
@@ -371,7 +378,7 @@ getusage <- function(spec, command = getfile()) {
 		ret <- paste0(ret, " [-[-", spec[j, COL_LONG_NAME], "|", spec[j, COL_SHORT_NAME], "]")
 		if (spec[j, COL_ACTION] %in% c("store_true", "store_false", "count")) {
 			ret <- paste0(ret, "]")
-		} else if (spec[j, COL_ACTION] == "store") {
+		} else if (spec[j, COL_ACTION] %in% c("store", "append")) {
 			ret <- paste0(ret, " <", spec[j, COL_MODE], ">]")
 		} else if (spec[j, COL_ACTION] == "store_optional") {
 			ret <- paste0(ret, " [<", spec[j, COL_MODE], ">]]")
@@ -433,7 +440,7 @@ as_spec <- function(spec) {
 	spec[, COL_ACTION] <- gsub("1", "store", spec[, COL_ACTION], fixed = TRUE)
 	spec[, COL_ACTION] <- gsub("2", "store_optional", spec[, COL_ACTION], fixed = TRUE)
 
-	valid_actions <- c("count", "store", "store_false", "store_optional", "store_true")
+	valid_actions <- c("append", "count", "store", "store_false", "store_optional", "store_true")
 	bad_actions <- setdiff(spec[, COL_ACTION], valid_actions)
 	if (length(bad_actions) > 0L) {
 		stop(paste0(

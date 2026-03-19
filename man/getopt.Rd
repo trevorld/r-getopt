@@ -26,7 +26,8 @@ Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Action} of the \emph{flag}.  A string.
-Possible values: \code{"count"} (flag takes no argument; stores count of how many times the flag was present),
+Possible values: \code{"append"} (flag takes a required argument; appends it to a vector each time the flag is used),
+\code{"count"} (flag takes no argument; stores count of how many times the flag was present),
 \code{"store_true"} (flag takes no argument; stores \code{TRUE}),
 \code{"store_false"} (flag takes no argument; stores \code{FALSE}),
 \code{"store"} (flag takes a required argument),
@@ -123,10 +124,8 @@ all the features of both getopt and optparse (plus more)
 
 Some Features unlikely to be implemented in \code{getopt}:
 \enumerate{
-\item Support for multi-valued flags, e.g. \verb{--libpath=/usr/local/lib --libpath=/tmp/foo}.
 \item Support for lists, e.g. \verb{--define os=linux --define os=redhat} would
 set \code{result$os$linux=TRUE} and \code{result$os$redhat=TRUE}.
-\item Support for incremental, argument-less flags, e.g. \verb{/path/to/script -vvv} should set \code{v=3}.
 \item No support for mixing in positional arguments or extra arguments that
 don't match any options.  For example, you can't do \verb{my.R --arg1 1 foo bar baz} and recover \code{foo}, \code{bar}, \code{baz} as a list.  Likewise for \verb{my.R foo --arg1 1 bar baz}.
 }
@@ -155,7 +154,7 @@ if (isTRUE(opt$help)) {
 if (is.null(opt$mean)) opt$mean <- 0
 if (is.null(opt$sd)) opt$sd <- 1
 if (is.null(opt$count)) opt$count <- 10L
-if (is.null(opt$verbose)) opt$verbose <- 0L
+if (is.null(opt$verbose)) opt$verbose <- FALSE
 
 # print some progress messages to stderr, if requested
 if (opt$verbose) write("writing...", stderr())
