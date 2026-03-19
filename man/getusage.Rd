@@ -19,7 +19,8 @@ Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Action} of the \emph{flag}.  A string.
-Possible values: \code{"store_true"} (flag takes no argument; stores \code{TRUE}),
+Possible values: \code{"count"} (flag takes no argument; stores count of how many times the flag was present),
+\code{"store_true"} (flag takes no argument; stores \code{TRUE}),
 \code{"store_false"} (flag takes no argument; stores \code{FALSE}),
 \code{"store"} (flag takes a required argument),
 \code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE}).
@@ -27,8 +28,9 @@ For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases
 \code{"store_true"}, \code{"store"}, \code{"store_optional"} respectively.
 
 Column 4: Data type to which the \emph{flag}'s argument shall be cast using
-\code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.  This only considered
-for same-row Column 3 values of 1,2.
+\code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.  Only used for
+\code{"store"}, \code{"store_optional"}, and \code{"store_true"}/\code{"store_false"} actions;
+ignored for \code{"count"} (always stores integer).
 Possible values: "logical", "integer", "double", "complex", "character".
 "numeric" is treated as an alias for "double".
 

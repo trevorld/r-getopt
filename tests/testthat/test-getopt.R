@@ -115,6 +115,14 @@ test_that("store_false stores FALSE", {
 	expect_equal(getopt(spec, "-v")$verbose, FALSE)
 	expect_equal(getopt(spec, "--verbose")$verbose, FALSE)
 })
+test_that("count increments each time flag is used", {
+	spec <- matrix(c("verbose", "v", "count", "integer"), ncol = 4, byrow = TRUE)
+	expect_null(getopt(spec, character(0))$verbose)
+	expect_equal(getopt(spec, "-v")$verbose, 1L)
+	expect_equal(getopt(spec, c("-v", "-v", "-v"))$verbose, 3L)
+	expect_equal(getopt(spec, "--verbose")$verbose, 1L)
+	expect_equal(getopt(spec, c("--verbose", "--verbose"))$verbose, 2L)
+})
 test_that("data.frame spec is coerced to matrix", {
 	spec <- as.data.frame(matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE))
 	expect_equal(getopt(spec, c("-c", "5"))$count, 5L)
@@ -250,7 +258,7 @@ test_that("tests to get coverage up", {
 
 	expect_error(getopt(spec, "-p"), 'short flag "p" is invalid')
 
-	expect_error(getopt(spec, "-nh"), 'short flag "n" requires an argument, but has none')
+	expect_error(getopt(spec, "-nh"), 'flag "n" requires an argument')
 	expect_error(getopt(spec, "-fn"), 'flag "n" requires an argument')
 
 	expect_error(

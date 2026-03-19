@@ -1,3 +1,11 @@
+test_that("normalize_opt() splits short flag clusters", {
+	expect_equal(normalize_opt(c("-sbg", "--verbose")), c("-s", "-b", "-g", "--verbose"))
+})
+
+test_that("normalize_opt() does not split negative numbers", {
+	expect_equal(normalize_opt(c("-3", "-3.14", "-1e5")), c("-3", "-3.14", "-1e5"))
+})
+
 test_that("get_Rscript_filename() ignores --file= after --args", {
 	local_mocked_bindings(
 		command_args = function() c("Rscript", "--file=script.R", "--args", "--file=fake.R")
