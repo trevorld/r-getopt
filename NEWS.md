@@ -6,6 +6,7 @@ getopt 1.21.0 (development)
   (which will be silently coerced to a matrix).
 * `getopt()` and `getusage()` now support action strings in column 3 of `spec`:
 
+  + `"append"` appends each argument to a vector each time the flag is used.
   + `"count"` stores integer count of each time the flag is used.
   + `"store"` stores argument value, legacy `1` supported as an alias.
   + `"store_false"` stores `FALSE`.

@@ -19,7 +19,8 @@ Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Action} of the \emph{flag}.  A string.
-Possible values: \code{"count"} (flag takes no argument; stores count of how many times the flag was present),
+Possible values: \code{"append"} (flag takes a required argument; appends it to a vector each time the flag is used),
+\code{"count"} (flag takes no argument; stores count of how many times the flag was present),
 \code{"store_true"} (flag takes no argument; stores \code{TRUE}),
 \code{"store_false"} (flag takes no argument; stores \code{FALSE}),
 \code{"store"} (flag takes a required argument),
