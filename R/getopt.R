@@ -112,9 +112,8 @@
 #' `"store_true"`, `"store"`, `"store_optional"` respectively.
 #'
 #' Column 4: Data type to which the \emph{flag}'s argument shall be cast using
-#' [storage.mode()].  A multi-character string.  Only used for
-#' `"store"`, `"store_optional"`, and `"store_true"`/`"store_false"` actions;
-#' ignored for `"count"` (always stores integer).
+#' [storage.mode()].  A multi-character string.
+#' Only used when an action took an argument.
 #' Possible values: "logical", "integer", "double", "complex", "character".
 #' "numeric" is treated as an alias for "double".
 #'
@@ -217,7 +216,7 @@ getopt <- function(
 		optstring <- opt[i]
 
 		# long flag
-		if (startsWith(optstring, "--")) {
+		if (is_long_flag(optstring)) {
 			if (debug) {
 				cat("\tlong option:", optstring, "\n")
 			}
@@ -248,98 +247,64 @@ getopt <- function(
 			}
 
 			long_name <- spec[rowmatch, COL_LONG_NAME]
+			action <- spec[rowmatch, COL_ACTION]
 
-			# if we have an argument
+			# if we have an argument embedded via '='
 			if (!is.na(this_argument)) {
 				# if we can't accept the argument, bail out
-				if (spec[rowmatch, COL_ACTION] %in% c("store_true", "store_false", "count")) {
+				if (action %in% c("store_true", "store_false", "count")) {
 					stop(paste0('long flag "', this_flag, '" accepts no arguments'))
-
-					# otherwise assign the argument to the flag
 				} else {
-					mode <- spec[rowmatch, COL_MODE]
-					warning_msg <- tryCatch(
-						storage.mode(this_argument) <- mode,
-						warning = function(w) {
-							warning(paste(mode, "expected, got", dQuote(this_argument)))
-						}
-					)
-					if (is.na(this_argument) && !grepl("expected, got", warning_msg)) {
-						warning(paste("long flag", this_flag, "given a bad argument"))
-					}
 					result[long_name] <- this_argument
 					i <- i + 1L
 					next
 				}
 
-				# otherwise, we don't have an argument
+				# no embedded argument
 			} else {
-				# nolint start
-				# if we require an argument, bail out
-				### if (spec[rowmatch, COL_ACTION] == "store") {
-				###  stop(paste('long flag "', this_flag, '" requires an argument', sep = ""))
-
-				# long flag has no attached argument. set flag as present.
-				# set current_flag so we can peek ahead later and consume the argument if it's there
-				# nolint end
-				###} else {
-				if (spec[rowmatch, COL_ACTION] == "count") {
+				if (action == "count") {
 					result[long_name] <- (result[[long_name]] %||% 0L) + 1L
 					i <- i + 1L
 					next
+				} else if (action %in% c("store_true", "store_false")) {
+					result[long_name] <- action != "store_false"
+					i <- i + 1L
+					next
 				} else {
-					result[long_name] <- spec[rowmatch, COL_ACTION] != "store_false"
+					# store or store_optional: peek ahead for argument
+					result[long_name] <- TRUE
 					current_flag <- rowmatch
 				}
-				###}
 			}
 
-			# short flag(s)
-		} else if (startsWith(optstring, "-")) {
+			# short flag
+		} else if (is_short_flag(optstring)) {
 			if (debug) {
 				cat("\tshort option:", optstring, "\n")
 			}
 
-			these_flags <- strsplit(optstring, "")[[1L]]
+			this_flag <- substring(optstring, 2L)
+			rowmatch <- grep(this_flag, spec[, COL_SHORT_NAME], fixed = TRUE)
 
-			done <- FALSE
-			for (j in 2L:length(these_flags)) {
-				this_flag <- these_flags[j]
-				rowmatch <- grep(this_flag, spec[, COL_SHORT_NAME], fixed = TRUE)
-				long_name <- spec[rowmatch, COL_LONG_NAME]
-
-				# short flag is invalid, matches no options
-				if (length(rowmatch) == 0) {
-					stop(paste0('short flag "', this_flag, '" is invalid'))
-
-					# short flag has an argument, but is not the last in a compound flag string
-				} else if (
-					j < length(these_flags) &&
-						spec[rowmatch, COL_ACTION] == "store"
-				) {
-					stop(paste0('short flag "', this_flag, '" requires an argument, but has none'))
-
-					# short flag has no argument, flag it as present
-				} else if (
-					spec[rowmatch, COL_ACTION] %in% c("store_true", "store_false", "count")
-				) {
-					if (spec[rowmatch, COL_ACTION] == "count") {
-						result[long_name] <- (result[[long_name]] %||% 0L) + 1L
-					} else {
-						result[long_name] <- spec[rowmatch, COL_ACTION] != "store_false"
-					}
-					done <- TRUE
-
-					# can't definitively process this_flag flag yet, need to see if next option is an argument or not
-				} else {
-					result[long_name] <- TRUE
-					current_flag <- rowmatch
-					done <- FALSE
-				}
+			if (length(rowmatch) == 0) {
+				stop(paste0('short flag "', this_flag, '" is invalid'))
 			}
-			if (done) {
+
+			long_name <- spec[rowmatch, COL_LONG_NAME]
+			action <- spec[rowmatch, COL_ACTION]
+
+			if (action == "count") {
+				result[long_name] <- (result[[long_name]] %||% 0L) + 1L
 				i <- i + 1L
 				next
+			} else if (action %in% c("store_true", "store_false")) {
+				result[long_name] <- action != "store_false"
+				i <- i + 1L
+				next
+			} else {
+				# store or store_optional: peek ahead for argument
+				result[long_name] <- TRUE
+				current_flag <- rowmatch
 			}
 		}
 
@@ -371,17 +336,13 @@ getopt <- function(
 				# in which case we allow a leading dash (and verify trailing digits/decimals).
 				if (
 					!startsWith(peek_optstring, "-") ||
-						(regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", peek_optstring) > 0 &&
+						(is_negative_number(peek_optstring) &&
 							spec[current_flag, COL_MODE] %in% c("double", "integer"))
 				) {
 					if (debug) {
 						cat("\t\t\t\tconsuming argument *", peek_optstring, "*\n")
 					}
 
-					mode <- spec[current_flag, COL_MODE]
-					tryCatch(storage.mode(peek_optstring) <- mode, warning = function(w) {
-						warning(paste(mode, "expected, got", dQuote(peek_optstring)))
-					})
 					result[current_name] <- peek_optstring
 					i <- i + 1L
 
@@ -390,13 +351,6 @@ getopt <- function(
 					if (debug) {
 						cat("\t\t\t\tconsuming \"lone dash\" argument\n")
 					}
-					mode <- spec[current_flag, COL_MODE]
-					tryCatch(
-						storage.mode(peek_optstring) <- mode,
-						warning = function(w) {
-							warning(paste(mode, "expected, got", dQuote(peek_optstring)))
-						}
-					)
 					result[current_name] <- peek_optstring
 					i <- i + 1L
 
@@ -415,9 +369,7 @@ getopt <- function(
 						current_action %in%
 							c("store_optional", "store_true", "store_false")
 					) {
-						x <- current_action != "store_false"
-						storage.mode(x) <- spec[current_flag, COL_MODE]
-						result[current_name] <- x
+						result[current_name] <- current_action != "store_false"
 					}
 				}
 				# trailing flag without required argument
@@ -429,15 +381,29 @@ getopt <- function(
 				current_action %in%
 					c("store_optional", "store_true", "store_false")
 			) {
-				x <- current_action != "store_false"
-				storage.mode(x) <- spec[current_flag, COL_MODE]
-				result[current_name] <- x
+				result[current_name] <- current_action != "store_false"
 			} else {
 				stop("this should never happen (2).  please inform the author.") # nocov
 			}
 		} # no dangling flag, nothing to do.
 
 		i <- i + 1L
+	}
+	for (j in seq_len(nrow(spec))) {
+		long_name <- spec[j, COL_LONG_NAME]
+		if (is.character(result[[long_name]])) {
+			mode <- spec[j, COL_MODE]
+			val <- result[[long_name]]
+			tryCatch(
+				storage.mode(result[[long_name]]) <- mode,
+				warning = function(w) {
+					warning(paste(mode, "expected, got", dQuote(val)))
+				}
+			)
+			if (is.na(result[[long_name]]) && !is.na(val)) {
+				warning(paste(mode, "expected, got", dQuote(val)))
+			}
+		}
 	}
 	result
 }

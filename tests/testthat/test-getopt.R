@@ -16,15 +16,15 @@ test_that("getopt works as expected", {
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-v", "-m", "3"))),
-		sort_list(list(ARGS = character(0), verbose = 1, mean = 3))
+		sort_list(list(ARGS = character(0), verbose = TRUE, mean = 3))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-m", "3", "-v"))),
-		sort_list(list(ARGS = character(0), mean = 3, verbose = 1))
+		sort_list(list(ARGS = character(0), mean = 3, verbose = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-m", "3", "-v", "2", "-v"))),
-		sort_list(list(ARGS = character(0), mean = 3, verbose = 1))
+		sort_list(list(ARGS = character(0), mean = 3, verbose = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-O", "-", "-m", "3"))),
@@ -39,21 +39,23 @@ test_that("getopt works as expected", {
 		sort_list(getopt(spec, c("-de"))),
 		sort_list(list(ARGS = character(0), dummy1 = TRUE, dummy2 = TRUE))
 	)
-	expect_equal(
-		sort_list(getopt(spec, c("-de", "1"))),
-		sort_list(list(ARGS = character(0), dummy1 = TRUE, dummy2 = NA))
+	expect_warning(
+		expect_equal(
+			sort_list(getopt(spec, c("-de", "1"))),
+			sort_list(list(ARGS = character(0), dummy1 = TRUE, dummy2 = NA))
+		)
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose"))),
-		sort_list(list(ARGS = character(0), verbose = 1))
+		sort_list(list(ARGS = character(0), verbose = TRUE))
 	)
 	expect_equal(
-		sort_list(getopt(spec, c("--verbose", "--help"))),
-		sort_list(list(ARGS = character(0), verbose = 1, help = TRUE))
+		sort_list(getopt(spec, c("--verbose", "1", "--help"))),
+		sort_list(list(ARGS = character(0), verbose = 1L, help = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "--mean", "5"))),
-		sort_list(list(ARGS = character(0), verbose = 1, mean = 5))
+		sort_list(list(ARGS = character(0), verbose = TRUE, mean = 5))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--mean=5"))),
@@ -61,7 +63,7 @@ test_that("getopt works as expected", {
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "--mean=5", "--sd", "5"))),
-		sort_list(list(ARGS = character(0), verbose = 1, mean = 5, sd = 5))
+		sort_list(list(ARGS = character(0), verbose = TRUE, mean = 5, sd = 5))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "--mean=5", "--sd", "5"))),
