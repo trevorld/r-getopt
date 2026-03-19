@@ -39,13 +39,20 @@ get_Rscript_filename <- getfile
 
 command_args <- function() commandArgs()
 
+is_negative_number <- function(x) {
+	regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", x) > 0L
+}
+
+is_long_flag <- function(x) {
+	startsWith(x, "--") && nchar(x) > 2L
+}
+
+is_short_flag <- function(x) {
+	startsWith(x, "-") && !startsWith(x, "--") && !is_negative_number(x)
+}
+
 normalize_opt_helper <- function(o) {
-	if (
-		startsWith(o, "-") &&
-			!startsWith(o, "--") &&
-			nchar(o) > 2L &&
-			regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", o) == -1L
-	) {
+	if (is_short_flag(o) && nchar(o) > 2L) {
 		paste0("-", strsplit(substring(o, 2L), "")[[1L]])
 	} else {
 		o

@@ -74,9 +74,6 @@
     Output
       processing --foo 
       	long option: --foo 
-      		dangling flag
-      			peeking ahead at: " --bar "
-      				no argument!
       processing --bar 
       	long option: --bar 
       		dangling flag

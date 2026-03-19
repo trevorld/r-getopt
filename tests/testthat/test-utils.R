@@ -1,3 +1,18 @@
+test_that("is_long_flag() identifies long flags", {
+	expect_true(is_long_flag("--verbose"))
+	expect_false(is_long_flag("--"))
+	expect_false(is_long_flag("-v"))
+	expect_false(is_long_flag("foo"))
+})
+
+test_that("is_short_flag() identifies short flags", {
+	expect_true(is_short_flag("-v"))
+	expect_false(is_short_flag("--verbose"))
+	expect_false(is_short_flag("-3"))
+	expect_false(is_short_flag("-3.14"))
+	expect_false(is_short_flag("foo"))
+})
+
 test_that("normalize_opt() splits short flag clusters", {
 	expect_equal(normalize_opt(c("-sbg", "--verbose")), c("-s", "-b", "-g", "--verbose"))
 })
