@@ -12,8 +12,10 @@ getopt 1.21.0 (development)
   + `"store_optional"` stores argument value if present otherwise stores `TRUE`,  legacy `2` supported as an alias.
   + `"store_true"` stores `TRUE`, legacy `0` supported as an alias.
 
-* For long flags the storage mode column of `spec` now only casts any arguments that were taken to the requested storage mode.
+* For long flags the storage mode column of `spec` now only casts any taken argument values from to the requested storage mode.
+  In particular `store_true` now never casts to the requested storage mode and `store_optional` only casts to the requested storage mode when the optional argument value is present.
   This was the documented behaviour and the previous/current behavior for short flags.
+* You can now store negative numbers when storage mode is not "double" or "integer" (e.g. "character").
 
 getopt 1.20.4
 =============

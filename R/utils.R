@@ -48,7 +48,7 @@ is_long_flag <- function(x) {
 }
 
 is_short_flag <- function(x) {
-	startsWith(x, "-") && !startsWith(x, "--") && !is_negative_number(x)
+	startsWith(x, "-") && !startsWith(x, "--") && nchar(x) > 1L && !is_negative_number(x)
 }
 
 normalize_opt_helper <- function(o) {
