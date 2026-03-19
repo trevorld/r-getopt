@@ -76,9 +76,9 @@
       	long option: --foo 
       processing --bar 
       	long option: --bar 
-      		dangling flag
-      			peeking ahead at: " baz "
-      				consuming argument * baz *
+      		requires a argument
+      			peeking ahead at: 'baz' 
+      				consuming argument 'baz' 
 
 ---
 
@@ -90,9 +90,9 @@
       	short option: -f 
       processing -n 
       	short option: -n 
-      		dangling flag
-      			peeking ahead at: " 2 "
-      				consuming argument * 2 *
+      		optionally takes an argument
+      			peeking ahead at: '2' 
+      				consuming argument '2' 
 
 ---
 
@@ -101,7 +101,7 @@
     Output
       processing -b 
       	short option: -b 
-      		dangling flag
-      			peeking ahead at: " - "
-      				consuming "lone dash" argument
+      		requires a argument
+      			peeking ahead at: '-' 
+      				consuming argument '-' 
 

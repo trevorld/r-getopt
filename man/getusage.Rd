@@ -28,9 +28,8 @@ For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases
 \code{"store_true"}, \code{"store"}, \code{"store_optional"} respectively.
 
 Column 4: Data type to which the \emph{flag}'s argument shall be cast using
-\code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.  Only used for
-\code{"store"}, \code{"store_optional"}, and \code{"store_true"}/\code{"store_false"} actions;
-ignored for \code{"count"} (always stores integer).
+\code{\link[=storage.mode]{storage.mode()}}.  A multi-character string.
+Only used when an action took an argument.
 Possible values: "logical", "integer", "double", "complex", "character".
 "numeric" is treated as an alias for "double".
 

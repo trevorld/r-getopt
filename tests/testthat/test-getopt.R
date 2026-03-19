@@ -256,20 +256,20 @@ test_that("tests to get coverage up", {
 
 	expect_warning(getopt(spec, c("--number=bar")), paste("double expected, got", dQuote("bar")))
 
-	expect_error(getopt(spec, "-n"), 'flag "n" requires an argument')
+	expect_error(getopt(spec, "-n"), 'flag `n` requires an argument')
 
 	expect_error(getopt(spec, "-p"), 'short flag "p" is invalid')
 
-	expect_error(getopt(spec, "-nh"), 'flag "n" requires an argument')
-	expect_error(getopt(spec, "-fn"), 'flag "n" requires an argument')
+	expect_error(getopt(spec, "-nh"), 'flag `n` requires an argument')
+	expect_error(getopt(spec, "-fn"), 'flag `n` requires an argument')
 
 	expect_error(
 		getopt(spec, c("--number", 3, 4)),
 		'"4" is not a valid option, or does not support an argument'
 	)
-	expect_error(getopt(spec, c("-b")), '"b" requires an argument')
-	expect_error(getopt(spec, c("--foobar")), 'flag "foobar" requires an argument')
-	expect_error(getopt(spec, c("--foobar", "--help")), 'flag "foobar" requires an argument')
+	expect_error(getopt(spec, c("-b")), 'flag `b` requires an argument')
+	expect_error(getopt(spec, c("--foobar")), 'flag `foobar` requires an argument')
+	expect_error(getopt(spec, c("--foobar", "--help")), 'flag `foobar` requires an argument')
 
 	expect_warning(getopt(spec, c("-n", "-")), paste("double expected, got", dQuote("-")))
 })

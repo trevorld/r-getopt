@@ -75,7 +75,7 @@ An example Rscript using ``getopt`` with R 4.4+ (i.e. support for ``%||%`` and `
     opt$mean <- opt$mean %||% 0
     opt$sd <- opt$sd %||% 1
     opt$count <- opt$count %||% 10L
-    opt$verbose <- opt$verbose %||% 0L
+    opt$verbose <- opt$verbose %||% FALSE
 
     # print some progress messages to stderr, if requested
     if (opt$verbose) write("writing...", stderr())
@@ -113,7 +113,7 @@ An example Rscript using ``getopt`` for old versions of R:
     if (is.null(opt$mean)) opt$mean <- 0
     if (is.null(opt$sd)) opt$sd <- 1
     if (is.null(opt$count)) opt$count <- 10L
-    if (is.null(opt$verbose)) opt$verbose <- 0L
+    if (is.null(opt$verbose)) opt$verbose <- FALSE
 
     # print some progress messages to stderr, if requested
     if ( opt$verbose ) write("writing...", stderr())
