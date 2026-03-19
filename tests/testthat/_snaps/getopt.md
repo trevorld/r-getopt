@@ -47,13 +47,13 @@
       getopt(spec, "")
     Condition
       Error in `as_spec()`:
-      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "store_true", "store_false", "store", "store_optional".
+      ! column 3 of "spec" contains invalid action(s): "store_sideways".  Valid actions: "count", "store", "store_false", "store_optional", "store_true".
     Code
       spec <- matrix(c("foo", "f", 0, "bignum"), ncol = 4, byrow = TRUE)
       getopt(spec, "")
     Condition
       Error in `as_spec()`:
-      ! column 4 of "spec" contains invalid mode(s): "bignum".  Valid modes: "logical", "integer", "double", "complex", "character".
+      ! column 4 of "spec" contains invalid mode(s): "bignum".  Valid modes: "character", "complex", "double", "integer", "logical".
 
 # Optional usage strings work as expected
 
@@ -88,8 +88,11 @@
     Code
       . <- getopt(spec, c("-fn", "2"), debug = TRUE)
     Output
-      processing -fn 
-      	short option: -fn 
+      normalized opt to: -f -n 2 
+      processing -f 
+      	short option: -f 
+      processing -n 
+      	short option: -n 
       		dangling flag
       			peeking ahead at: " 2 "
       				consuming argument * 2 *

@@ -39,6 +39,25 @@ get_Rscript_filename <- getfile
 
 command_args <- function() commandArgs()
 
+normalize_opt_helper <- function(o) {
+	if (
+		startsWith(o, "-") &&
+			!startsWith(o, "--") &&
+			nchar(o) > 2L &&
+			regexpr("^-[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$", o) == -1L
+	) {
+		paste0("-", strsplit(substring(o, 2L), "")[[1L]])
+	} else {
+		o
+	}
+}
+
+normalize_opt <- function(opt) {
+	unlist(lapply(opt, normalize_opt_helper))
+}
+
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
 na_omit <- function(x) {
 	Filter(Negate(is.na), x)
 }
