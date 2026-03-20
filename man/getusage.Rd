@@ -4,7 +4,7 @@
 \alias{getusage}
 \title{Generate a usage string}
 \usage{
-getusage(spec, command = getfile())
+getusage(spec, command = getfile(), usage = "Usage: \%command \%options")
 }
 \arguments{
 \item{spec}{The getopt specification, or spec of what options are considered
@@ -19,12 +19,16 @@ Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Action} of the \emph{flag}.  A string.
-Possible values: \code{"append"} (flag takes a required argument; appends it to a vector each time the flag is used),
-\code{"count"} (flag takes no argument; stores count of how many times the flag was present),
-\code{"store_true"} (flag takes no argument; stores \code{TRUE}),
-\code{"store_false"} (flag takes no argument; stores \code{FALSE}),
-\code{"store"} (flag takes a required argument),
-\code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE}).
+Possible values:
+\itemize{
+\item \code{"append"} (flag takes a required argument; appends it to a vector each time the flag is used)
+\item \code{"count"} (flag takes no argument; stores count of how many times the flag was present)
+\item \code{"store_true"} (flag takes no argument; stores \code{TRUE})
+\item \code{"store_false"} (flag takes no argument; stores \code{FALSE})
+\item \code{"store"} (flag takes a required argument)
+\item \code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE})
+}
+
 For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases for
 \code{"store_true"}, \code{"store"}, \code{"store_optional"} respectively.
 
@@ -38,10 +42,14 @@ Column 5 (optional): A brief description of the purpose of the option.
 
 The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 and \emph{argument} have very specific meanings in the context of this
-document.  Read the \dQuote{Description} section for definitions.}
+document.  Read the \dQuote{Details} section of \code{\link[=getopt]{getopt()}} for definitions.}
 
 \item{command}{The string to use in the usage message as the name of the
 script.  See argument \emph{usage}.}
+
+\item{usage}{A template string for the usage line.  \code{"\%command"} is replaced
+by the value of \code{command} and \code{"\%options"} is replaced by the computed
+options string.}
 }
 \value{
 A character string with the usage message.
@@ -58,4 +66,6 @@ spec <- matrix(c(
   'sd'     , 's', 1, "double"
 ), byrow = TRUE, ncol = 4)
 cat(getusage(spec, command = "myscript"))
+cat(getusage(spec, command = "myscript",
+             usage = "Usage: \%command \%options FILE"))
 }

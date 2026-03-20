@@ -13,6 +13,14 @@
       Error in `getopt()`:
       ! flag `p` requires an argument
 
+# operand = 'strict' collects non-flag tokens as operands
+
+    Code
+      getopt(spec, c("--unknown"), operand = "strict")
+    Condition
+      Error in `get_rowmatch()`:
+      ! long flag "unknown" is invalid
+
 # more helpful warnings upon incorrect input
 
     Code
@@ -112,4 +120,13 @@
       		requires a argument
       			peeking ahead at: '-' 
       				consuming argument '-' 
+
+---
+
+    Code
+      . <- getopt(spec, c("--foo", "--", "file1.txt", "file2.txt"), debug = TRUE)
+    Output
+      extracted positional args after `--`: file1.txt file2.txt 
+      processing --foo 
+      	long option: --foo 
 

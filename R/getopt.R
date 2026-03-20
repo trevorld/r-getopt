@@ -21,12 +21,6 @@
 #' flags/options.  It can also be used from `R` directly, but is probably less
 #' useful in this context.
 #'
-#' [getopt()] returns a list data structure containing names of the
-#' flags that were present in the character vector passed in under
-#' the `opt` argument.  Each value of the list is coerced to the
-#' data type specified according to the value of the `spec` argument.  See
-#' below for details.
-#'
 #' Notes on naming convention:
 #'
 #' 1. An \emph{option} is one of the shell-split input strings.
@@ -79,11 +73,6 @@
 #' 1. Support for lists, e.g. `--define os=linux --define os=redhat` would
 #' set `result$os$linux=TRUE` and `result$os$redhat=TRUE`.
 #'
-#' 2. No support for mixing in positional arguments or extra arguments that
-#' don't match any options.  For example, you can't do `my.R --arg1 1 foo bar
-#' baz` and recover `foo`, `bar`, `baz` as a list.  Likewise for `my.R foo
-#' --arg1 1 bar baz`.
-#'
 #' @aliases getopt getopt-package
 #' @param spec The getopt specification, or spec of what options are considered
 #' valid.  The specification must be either a 4-5 column matrix, a 4-5 column data frame, or a
@@ -97,12 +86,15 @@
 #' May be `NA_character_` if there is no short flag.
 #'
 #' Column 3: \emph{Action} of the \emph{flag}.  A string.
-#' Possible values: `"append"` (flag takes a required argument; appends it to a vector each time the flag is used),
-#' `"count"` (flag takes no argument; stores count of how many times the flag was present),
-#' `"store_true"` (flag takes no argument; stores `TRUE`),
-#' `"store_false"` (flag takes no argument; stores `FALSE`),
-#' `"store"` (flag takes a required argument),
-#' `"store_optional"` (flag takes an optional argument but if none present stores `TRUE`).
+#' Possible values:
+#'
+#' * `"append"` (flag takes a required argument; appends it to a vector each time the flag is used)
+#' * `"count"` (flag takes no argument; stores count of how many times the flag was present)
+#' * `"store_true"` (flag takes no argument; stores `TRUE`)
+#' * `"store_false"` (flag takes no argument; stores `FALSE`)
+#' * `"store"` (flag takes a required argument)
+#' * `"store_optional"` (flag takes an optional argument but if none present stores `TRUE`)
+#'
 #' For backwards compatibility `0`, `1`, `2` are accepted as aliases for
 #' `"store_true"`, `"store"`, `"store_optional"` respectively.
 #'
@@ -116,7 +108,7 @@
 #'
 #' The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 #' and \emph{argument} have very specific meanings in the context of this
-#' document.  Read the \dQuote{Description} section for definitions.
+#' document.  Read the \dQuote{Details} section of [getopt()] for definitions.
 #' @param opt This defaults to the return value of `commandArgs(TRUE)` unless
 #'    `argv` is in the global environment in which case it uses that instead
 #'    (this is for compatibility with `littler`).
@@ -133,6 +125,22 @@
 #' @param usage If `TRUE`, argument `opt` will be ignored and a usage
 #' statement (character string) will be generated and returned from `spec`.
 #' @param debug This is used internally to debug the `getopt()` function itself.
+#' @param operand Controls how positional arguments (operands) are handled.
+#'
+#'   * `"after--only"` (the default) only collects operands that appear after a `"--"` separator.
+#'   * `"strict"` (in addition to operands that appear after a `"--"` separator) collects tokens that do not look
+#'     like flags and were not consumed as a flag argument, while still erroring on
+#' unrecognized flags.
+#'
+#'   Operands are stored in the `"operand"` attribute of the
+#' result and can be retrieved with [getoperand()].
+#' @return [getopt()] returns a list data structure containing names of the
+#'   flags that were present in the character vector passed in under
+#'   the `opt` argument.  Each value of the list is coerced to the
+#'   data type specified according to the value of the `spec` argument.  See
+#'   the \dQuote{Details} section for more information.
+#'   Any positional arguments (operands) are stored in its `"operand"` attribute
+#'   and can also be accessed by [getoperand()].
 #' @author Allen Day and Trevor L. Davis
 #' @keywords data
 #' @export
@@ -149,11 +157,10 @@
 #' ), byrow = TRUE, ncol = 4L)
 #' opt <- getopt(spec)
 #'
-#' # if help was asked for print a friendly message
-#' # and exit with a non-zero error code
+#' # if help was asked for print a friendly message and exit
 #' if (isTRUE(opt$help)) {
 #'   cat(getusage(spec))
-#'   q(status = 1L)
+#'   q(status = 0)
 #' }
 #'
 #' # set reasonable defaults for options that were not specified
@@ -167,16 +174,15 @@
 #'
 #' # do some operation based on user input
 #' cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
-#'
-#' # signal success and exit
-#' # q(status = 0L)
 getopt <- function(
 	spec = NULL,
 	opt = NULL,
 	command = getfile(),
 	usage = FALSE,
-	debug = FALSE
+	debug = FALSE,
+	operand = "after--only"
 ) {
+	operand <- match.arg(operand, c("after--only", "strict"))
 	if (usage) {
 		return(getusage(spec, command))
 	}
@@ -190,15 +196,31 @@ getopt <- function(
 		}
 	}
 
-	opt_normalized <- normalize_opt(opt)
+	dashdash <- match("--", opt, nomatch = NA_integer_)
+	if (!is.na(dashdash)) {
+		dashdash_operands <- opt[seq_len(length(opt) - dashdash) + dashdash]
+		opt <- opt[seq_len(dashdash - 1L)]
+		if (debug) {
+			cat(
+				"extracted positional args after `--`:",
+				paste(dashdash_operands, collapse = " "),
+				"\n"
+			)
+		}
+	} else {
+		dashdash_operands <- NULL
+	}
+	inline_operands <- NULL
+
+	spec <- as_spec(spec)
+
+	opt_normalized <- normalize_opt(opt, spec)
 	if (debug && !identical(opt, opt_normalized)) {
 		cat("normalized opt to:", paste(opt_normalized, collapse = " "), "\n")
 	}
 	opt <- opt_normalized
 
-	result <- list(ARGS = character(0L))
-
-	spec <- as_spec(spec)
+	result <- list()
 
 	i <- 1L
 
@@ -224,20 +246,7 @@ getopt <- function(
 				this_argument <- NA
 			}
 
-			rowmatch <- grep(this_flag, spec[, COL_LONG_NAME], fixed = TRUE)
-
-			# long flag is invalid, matches no options
-			if (length(rowmatch) == 0) {
-				stop(paste0('long flag "', this_flag, '" is invalid'))
-
-				# long flag is ambiguous, matches too many options
-			} else if (length(rowmatch) > 1) {
-				# check if there is an exact match and use that
-				rowmatch <- which(this_flag == spec[, COL_LONG_NAME])
-				if (length(rowmatch) == 0) {
-					stop(paste0('long flag "', this_flag, '" is ambiguous'))
-				}
-			}
+			rowmatch <- get_rowmatch(spec, long = this_flag)
 
 			# if we have an argument embedded via '='
 			if (!is.na(this_argument)) {
@@ -262,19 +271,16 @@ getopt <- function(
 			}
 
 			this_flag <- substring(optstring, 2L)
-			rowmatch <- grep(this_flag, spec[, COL_SHORT_NAME], fixed = TRUE)
-
-			if (length(rowmatch) == 0) {
-				stop(paste0('short flag "', this_flag, '" is invalid'))
+			rowmatch <- get_rowmatch(spec, short = this_flag)
+		} else if (operand == "strict") {
+			if (debug) {
+				cat("collecting operand:", sQuote(optstring), "\n")
 			}
+			inline_operands <- c(inline_operands, optstring)
+			i <- i + 1L
+			next
 		} else {
-			# invalid opt
 			stop(paste0('"', optstring, '" is not a valid option, or does not support an argument'))
-			# nolint start
-			# TBD support for positional args
-			# if (debug) print(paste('"', optstring, '" not a valid option.  It is appended to getopt(...)$ARGS', sep = ""))
-			# result$ARGS = append(result$ARGS, optstring)
-			# nolint end
 		}
 
 		long_name <- spec[rowmatch, COL_LONG_NAME]
@@ -303,7 +309,10 @@ getopt <- function(
 					cat("\t\t\tpeeking ahead at:", sQuote(peek_optstring), "\n")
 				}
 
-				if (!is_long_flag(peek_optstring) && !is_short_flag(peek_optstring)) {
+				if (
+					!is_long_flag(peek_optstring) &&
+						(is_negative_number(peek_optstring) || !is_short_flag(peek_optstring))
+				) {
 					if (debug) {
 						cat("\t\t\t\tconsuming argument", sQuote(peek_optstring), "\n")
 					}
@@ -351,7 +360,24 @@ getopt <- function(
 			}
 		}
 	}
-	result
+	structure(result, class = "getopt", operand = c(inline_operands, dashdash_operands))
+}
+
+#' Extract positional arguments from a getopt result
+#'
+#' Extracts the positional arguments stored in the `"operands"` attribute of the
+#' object returned by [getopt()].
+#'
+#' @param x An object of class `"getopt"` as returned by [getopt()].
+#' @return A character vector of positional arguments.
+#' @export
+#' @examples
+#' spec <- matrix(c("verbose", "v", 0, "logical"), ncol = 4, byrow = TRUE)
+#' opt <- getopt(spec, c("--verbose", "--", "file1.txt", "file2.txt"))
+#' getoperand(opt)
+getoperand <- function(x) {
+	stopifnot(inherits(x, "getopt"))
+	attr(x, "operand")
 }
 
 #' Generate a usage string
@@ -359,6 +385,9 @@ getopt <- function(
 #' Generate a usage string from a getopt `spec` matrix.
 #'
 #' @inheritParams getopt
+#' @param usage A template string for the usage line.  `"%command"` is replaced
+#'   by the value of `command` and `"%options"` is replaced by the computed
+#'   options string.
 #' @return A character string with the usage message.
 #' @export
 #' @examples
@@ -370,21 +399,33 @@ getopt <- function(
 #'   'sd'     , 's', 1, "double"
 #' ), byrow = TRUE, ncol = 4)
 #' cat(getusage(spec, command = "myscript"))
-getusage <- function(spec, command = getfile()) {
+#' cat(getusage(spec, command = "myscript",
+#'              usage = "Usage: %command %options FILE"))
+getusage <- function(spec, command = getfile(), usage = "Usage: %command %options") {
 	spec <- as_spec(spec)
 
-	ret <- paste0("Usage: ", command)
+	options <- ""
 	for (j in seq_len(nrow(spec))) {
-		ret <- paste0(ret, " [-[-", spec[j, COL_LONG_NAME], "|", spec[j, COL_SHORT_NAME], "]")
+		options <- paste0(
+			options,
+			" [-[-",
+			spec[j, COL_LONG_NAME],
+			"|",
+			spec[j, COL_SHORT_NAME],
+			"]"
+		)
 		if (spec[j, COL_ACTION] %in% c("store_true", "store_false", "count")) {
-			ret <- paste0(ret, "]")
+			options <- paste0(options, "]")
 		} else if (spec[j, COL_ACTION] %in% c("store", "append")) {
-			ret <- paste0(ret, " <", spec[j, COL_MODE], ">]")
+			options <- paste0(options, " <", spec[j, COL_MODE], ">]")
 		} else if (spec[j, COL_ACTION] == "store_optional") {
-			ret <- paste0(ret, " [<", spec[j, COL_MODE], ">]]")
+			options <- paste0(options, " [<", spec[j, COL_MODE], ">]]")
 		}
 	}
-	ret <- paste0(ret, "\n")
+	options <- trimws(options)
+	usage <- gsub("%command", format(command), usage, fixed = TRUE)
+	usage <- gsub("%options", options, usage, fixed = TRUE)
+	ret <- paste0(usage, "\n")
 	# include usage strings
 	if (ncol(spec) >= 5L) {
 		max.long <- max(nchar(spec[, COL_LONG_NAME]))

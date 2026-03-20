@@ -8,6 +8,7 @@ reference:
   - title: "Main functions"
     contents:
       - getopt
+      - getoperand
       - getusage
   - title: "Utility functions"
     contents:
