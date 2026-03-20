@@ -2,6 +2,7 @@
 
 export(get_Rscript_filename)
 export(getfile)
+export(getoperand)
 export(getopt)
 export(getusage)
 export(sort_list)

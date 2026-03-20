@@ -1,10 +1,31 @@
 getopt 1.21.0 (development)
 ===========================
-* New ``getfile()`` function returns name of calling script, it is an alias of pre-existing `get_Rscript_filename()`.
-* New `getusage()` function generates a usage string from a getopt `spec` matrix.
-* The `spec` argument of `getopt()` and `getusage()` may now also be a 4-5 column data frame
-  (which will be silently coerced to a matrix).
-* `getopt()` and `getusage()` now support action strings in column 3 of `spec`:
+
+Breaking changes
+----------------
+
+* You can now store negative numbers like `-12` even when storage mode is not "double" or "integer" (e.g. when storage mode is "character" or "complex").
+  If the option's action is "store_optional" with a storage mode other than "double" or "integer" we will now store such negative numbers instead of treating them as a short flag bundle and if the option's action is "store" we will store such negative numbers instead of throwing an error.
+* For long flags the storage mode column of `spec` now only casts any taken argument values to the requested storage mode.
+  In particular `store_true` now never casts to the requested storage mode and `store_optional` only casts to the requested storage mode when the optional argument value is present and taken.
+  This was the documented behaviour and the previous/current behavior for short flags.
+
+New features
+------------
+
+* `getopt()` now has support for positional arguments (operands) (#2):
+
+  + `getopt()` now has an `operand` argument that controls how positional arguments (operands) are handled:
+
+    * `"after--only"` (the default) only collects operands that appear after a `"--"` separator.
+    * `"strict"` (in addition to operands that appear after a `"--"` separator) collects tokens that do not look
+      like flags and were not consumed as a flag argument, while still erroring on
+   unrecognized flags.
+
+    Any positional arguments are returned in the `"operand"` attribute of the output.
+  + New `getoperand()` function to extract the positional arguments (operands) stored in the `"operand"` attribute of output of `getopt()`.
+
+* `getopt()` and `getusage()` now support action strings in column 3 of `spec` (#11):
 
   + `"append"` appends each argument to a vector each time the flag is used.
   + `"count"` stores integer count of each time the flag is used.
@@ -13,10 +34,15 @@ getopt 1.21.0 (development)
   + `"store_optional"` stores argument value if present otherwise stores `TRUE`,  legacy `2` supported as an alias.
   + `"store_true"` stores `TRUE`, legacy `0` supported as an alias.
 
-* For long flags the storage mode column of `spec` now only casts any taken argument values from to the requested storage mode.
-  In particular `store_true` now never casts to the requested storage mode and `store_optional` only casts to the requested storage mode when the optional argument value is present.
-  This was the documented behaviour and the previous/current behavior for short flags.
-* You can now store negative numbers when storage mode is not "double" or "integer" (e.g. "character").
+* New ``getfile()`` function returns name of calling script, it is an alias of pre-existing `get_Rscript_filename()`.
+* New `getusage()` function generates a usage string from a getopt `spec` matrix.
+
+Bug fixes and minor improvements
+--------------------------------
+
+* The `spec` argument of `getopt()` and `getusage()` may now also be a 4-5 column data frame
+  (which will be silently coerced to a matrix).
+* The list returned by `getopt()` is now of S3 class `"getopt"` and no longer contains an `character(0L)` `ARGS` element.
 
 getopt 1.20.4
 =============

@@ -64,11 +64,10 @@ An example Rscript using ``getopt`` with R 4.4+ (i.e. support for ``%||%`` and `
     ), byrow = TRUE, ncol = 4L)
     opt <- getopt(spec)
 
-    # if help was asked for print a friendly message
-    # and exit with a non-zero error code
+    # if help was asked for print a friendly message and exit
     if (isTRUE(opt$help)) {
       getusage(spec) |> cat()
-      q(status = 1L)
+      quit(status = 0)
     }
 
     # set reasonable defaults for options that were not specified
@@ -82,9 +81,6 @@ An example Rscript using ``getopt`` with R 4.4+ (i.e. support for ``%||%`` and `
 
     # do some operation based on user input
     rnorm(opt$count, mean = opt$mean, sd = opt$sd) |> cat(sep="\n")
-
-    # signal success and exit
-    q(status = 0L)
 
 An example Rscript using ``getopt`` for old versions of R:
 
@@ -102,11 +98,10 @@ An example Rscript using ``getopt`` for old versions of R:
     ), byrow = TRUE, ncol = 4L)
     opt <- getopt(spec)
 
-    # if help was asked for print a friendly message
-    # and exit with a non-zero error code
+    # if help was asked for print a friendly message and exit
     if (!is.null(opt$help)) {
       cat(getusage(spec))
-      q(status = 1L)
+      quit(status = 0)
     }
 
     # set reasonable defaults for options that were not specified
@@ -116,10 +111,7 @@ An example Rscript using ``getopt`` for old versions of R:
     if (is.null(opt$verbose)) opt$verbose <- FALSE
 
     # print some progress messages to stderr, if requested
-    if ( opt$verbose ) write("writing...", stderr())
+    if (opt$verbose) write("writing...", stderr())
 
     # do some operation based on user input
     cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
-
-    # signal success and exit
-    q(status= 0L)

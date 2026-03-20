@@ -10,7 +10,8 @@ getopt(
   opt = NULL,
   command = getfile(),
   usage = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  operand = "after--only"
 )
 }
 \arguments{
@@ -26,12 +27,16 @@ Column 2: \emph{short flag} alias of Column 1.  A single-character string.
 May be \code{NA_character_} if there is no short flag.
 
 Column 3: \emph{Action} of the \emph{flag}.  A string.
-Possible values: \code{"append"} (flag takes a required argument; appends it to a vector each time the flag is used),
-\code{"count"} (flag takes no argument; stores count of how many times the flag was present),
-\code{"store_true"} (flag takes no argument; stores \code{TRUE}),
-\code{"store_false"} (flag takes no argument; stores \code{FALSE}),
-\code{"store"} (flag takes a required argument),
-\code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE}).
+Possible values:
+\itemize{
+\item \code{"append"} (flag takes a required argument; appends it to a vector each time the flag is used)
+\item \code{"count"} (flag takes no argument; stores count of how many times the flag was present)
+\item \code{"store_true"} (flag takes no argument; stores \code{TRUE})
+\item \code{"store_false"} (flag takes no argument; stores \code{FALSE})
+\item \code{"store"} (flag takes a required argument)
+\item \code{"store_optional"} (flag takes an optional argument but if none present stores \code{TRUE})
+}
+
 For backwards compatibility \code{0}, \code{1}, \code{2} are accepted as aliases for
 \code{"store_true"}, \code{"store"}, \code{"store_optional"} respectively.
 
@@ -45,7 +50,7 @@ Column 5 (optional): A brief description of the purpose of the option.
 
 The terms \emph{option}, \emph{flag}, \emph{long flag}, \emph{short flag},
 and \emph{argument} have very specific meanings in the context of this
-document.  Read the \dQuote{Description} section for definitions.}
+document.  Read the \dQuote{Details} section of \code{\link[=getopt]{getopt()}} for definitions.}
 
 \item{opt}{This defaults to the return value of \code{commandArgs(TRUE)} unless
 \code{argv} is in the global environment in which case it uses that instead
@@ -66,6 +71,26 @@ script.  See argument \emph{usage}.}
 statement (character string) will be generated and returned from \code{spec}.}
 
 \item{debug}{This is used internally to debug the \code{getopt()} function itself.}
+
+\item{operand}{Controls how positional arguments (operands) are handled.
+\itemize{
+\item \code{"after--only"} (the default) only collects operands that appear after a \code{"--"} separator.
+\item \code{"strict"} (in addition to operands that appear after a \code{"--"} separator) collects tokens that do not look
+like flags and were not consumed as a flag argument, while still erroring on
+unrecognized flags.
+}
+
+Operands are stored in the \code{"operand"} attribute of the
+result and can be retrieved with \code{\link[=getoperand]{getoperand()}}.}
+}
+\value{
+\code{\link[=getopt]{getopt()}} returns a list data structure containing names of the
+flags that were present in the character vector passed in under
+the \code{opt} argument.  Each value of the list is coerced to the
+data type specified according to the value of the \code{spec} argument.  See
+the \dQuote{Details} section for more information.
+Any positional arguments (operands) are stored in its \code{"operand"} attribute
+and can also be accessed by \code{\link[=getoperand]{getoperand()}}.
 }
 \description{
 \code{getopt} is primarily intended to be used with \code{Rscript}.  It
@@ -74,12 +99,6 @@ flags/options.  It can also be used from \code{R} directly, but is probably less
 useful in this context.
 }
 \details{
-\code{\link[=getopt]{getopt()}} returns a list data structure containing names of the
-flags that were present in the character vector passed in under
-the \code{opt} argument.  Each value of the list is coerced to the
-data type specified according to the value of the \code{spec} argument.  See
-below for details.
-
 Notes on naming convention:
 \enumerate{
 \item An \emph{option} is one of the shell-split input strings.
@@ -126,8 +145,6 @@ Some Features unlikely to be implemented in \code{getopt}:
 \enumerate{
 \item Support for lists, e.g. \verb{--define os=linux --define os=redhat} would
 set \code{result$os$linux=TRUE} and \code{result$os$redhat=TRUE}.
-\item No support for mixing in positional arguments or extra arguments that
-don't match any options.  For example, you can't do \verb{my.R --arg1 1 foo bar baz} and recover \code{foo}, \code{bar}, \code{baz} as a list.  Likewise for \verb{my.R foo --arg1 1 bar baz}.
 }
 }
 \examples{
@@ -143,11 +160,10 @@ spec <- matrix(c(
 ), byrow = TRUE, ncol = 4L)
 opt <- getopt(spec)
 
-# if help was asked for print a friendly message
-# and exit with a non-zero error code
+# if help was asked for print a friendly message and exit
 if (isTRUE(opt$help)) {
   cat(getusage(spec))
-  q(status = 1L)
+  q(status = 0)
 }
 
 # set reasonable defaults for options that were not specified
@@ -161,9 +177,6 @@ if (opt$verbose) write("writing...", stderr())
 
 # do some operation based on user input
 cat(rnorm(opt$count, mean = opt$mean, sd = opt$sd), sep = "\n")
-
-# signal success and exit
-# q(status = 0L)
 }
 \author{
 Allen Day and Trevor L. Davis

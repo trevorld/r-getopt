@@ -12,23 +12,23 @@ test_that("getopt works as expected", {
 	), ncol = 4, byrow = TRUE)
 	expect_equal(
 		sort_list(getopt(spec, c("-c", "-1", "-m", "-1.2"))),
-		sort_list(list(ARGS = character(0), count = -1, mean = -1.2))
+		sort_list(list(count = -1, mean = -1.2))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-v", "-m", "3"))),
-		sort_list(list(ARGS = character(0), verbose = TRUE, mean = 3))
+		sort_list(list(verbose = TRUE, mean = 3))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-m", "3", "-v"))),
-		sort_list(list(ARGS = character(0), mean = 3, verbose = TRUE))
+		sort_list(list(mean = 3, verbose = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-m", "3", "-v", "2", "-v"))),
-		sort_list(list(ARGS = character(0), mean = 3, verbose = TRUE))
+		sort_list(list(mean = 3, verbose = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-O", "-", "-m", "3"))),
-		sort_list(list(ARGS = character(0), output = "-", mean = 3))
+		sort_list(list(output = "-", mean = 3))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("-O", "-", "-m", "3"))),
@@ -37,33 +37,33 @@ test_that("getopt works as expected", {
 	expect_equal(sort_list(getopt(spec, c("-de"))), sort_list(getopt(spec, c("-ed"))))
 	expect_equal(
 		sort_list(getopt(spec, c("-de"))),
-		sort_list(list(ARGS = character(0), dummy1 = TRUE, dummy2 = TRUE))
+		sort_list(list(dummy1 = TRUE, dummy2 = TRUE))
 	)
 	expect_warning(
 		expect_equal(
 			sort_list(getopt(spec, c("-de", "1"))),
-			sort_list(list(ARGS = character(0), dummy1 = TRUE, dummy2 = NA))
+			sort_list(list(dummy1 = TRUE, dummy2 = NA))
 		)
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose"))),
-		sort_list(list(ARGS = character(0), verbose = TRUE))
+		sort_list(list(verbose = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "1", "--help"))),
-		sort_list(list(ARGS = character(0), verbose = 1L, help = TRUE))
+		sort_list(list(verbose = 1L, help = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "--mean", "5"))),
-		sort_list(list(ARGS = character(0), verbose = TRUE, mean = 5))
+		sort_list(list(verbose = TRUE, mean = 5))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--mean=5"))),
-		sort_list(list(ARGS = character(0), mean = 5))
+		sort_list(list(mean = 5))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "--mean=5", "--sd", "5"))),
-		sort_list(list(ARGS = character(0), verbose = TRUE, mean = 5, sd = 5))
+		sort_list(list(verbose = TRUE, mean = 5, sd = 5))
 	)
 	expect_equal(
 		sort_list(getopt(spec, c("--verbose", "--mean=5", "--sd", "5"))),
@@ -83,7 +83,7 @@ test_that("getopt works as expected", {
 	expect_warning(getopt(spec, c("--date", "20080421", "--market", "YM", "--getdata")))
 	expect_equal(
 		sort_list(getopt(spec2, c("--date", "20080421", "--market", "YM", "--getdata"))),
-		sort_list(list(ARGS = character(0), date = "20080421", market = "YM", getdata = TRUE))
+		sort_list(list(date = "20080421", market = "YM", getdata = TRUE))
 	)
 	expect_equal(
 		sort_list(getopt(spec2, c("--date", "20080421", "--market", "YM", "--getdata"))),
@@ -134,6 +134,38 @@ test_that("append collects repeated flag values into a vector", {
 	expect_equal(getopt(spec, c("--path=foo", "--path=bar"))$path, c("foo", "bar"))
 	expect_snapshot(error = TRUE, getopt(spec, "-p"))
 })
+test_that("-- separator puts remaining args in getoperand()", {
+	spec <- matrix(c("verbose", "v", 0, "logical"), ncol = 4, byrow = TRUE)
+	opt <- getopt(spec, c("--verbose", "--", "file1.txt", "file2.txt"))
+	expect_true(opt$verbose)
+	expect_equal(getoperand(opt), c("file1.txt", "file2.txt"))
+
+	opt <- getopt(spec, c("--verbose", "--"))
+	expect_equal(getoperand(opt), character(0))
+
+	opt <- getopt(spec, c("--verbose"))
+	expect_null(getoperand(opt))
+})
+test_that("operand = 'strict' collects non-flag tokens as operands", {
+	# fmt: skip
+	spec <- matrix(c(
+		"verbose", "v", 0, "logical",
+		"mean"   , "m", 1, "double"
+	), ncol = 4, byrow = TRUE)
+	opt <- getopt(spec, c("--verbose", "file1.txt", "--mean", "3", "file2.txt"), operand = "strict")
+	expect_true(opt$verbose)
+	expect_equal(opt$mean, 3)
+	expect_equal(getoperand(opt), c("file1.txt", "file2.txt"))
+
+	# unrecognized flags still error
+	expect_snapshot(
+		error = TRUE,
+		getopt(spec, c("--unknown"), operand = "strict")
+	)
+	# after-- operands are also included
+	opt <- getopt(spec, c("file1.txt", "--", "file2.txt"), operand = "strict")
+	expect_equal(getoperand(opt), c("file1.txt", "file2.txt"))
+})
 test_that("data.frame spec is coerced to matrix", {
 	spec <- as.data.frame(matrix(c("count", "c", 1, "integer"), ncol = 4, byrow = TRUE))
 	expect_equal(getopt(spec, c("-c", "5"))$count, 5L)
@@ -142,10 +174,11 @@ test_that("empty strings are handled correctly for mandatory character arguments
 	# fmt: skip
 	spec <- matrix(c(
 		"string", "s", 1, "character",
-		"number", "n", 1, "numeric"
+		"number", "9", 1, "numeric"
 	), ncol = 4, byrow = TRUE)
 	expect_equal(getopt(spec, c("--string=foo"))$string, "foo")
 	expect_equal(getopt(spec, c("--string="))$string, "")
+	expect_equal(getopt(spec, c("-9", "-4"))$number, -4)
 	expect_warning(getopt(spec, c("--number=")))
 })
 
@@ -209,7 +242,7 @@ test_that("don't throw error if multiple matches match one argument fully", {
 		"biz"   , "z", 0, "logical"
 	), ncol = 4, byrow = TRUE)
 	expect_error(getopt(spec, c("--fo")))
-	expect_equal(getopt(spec, c("--foo")), sort_list(list(ARGS = character(0), foo = TRUE)))
+	expect_equal(getopt(spec, c("--foo")), sort_list(list(foo = TRUE)), ignore_attr = TRUE)
 })
 
 test_that("sort_list works as expected", {
@@ -223,7 +256,7 @@ test_that("sort_list works as expected", {
 
 test_that("Use h flag for non help", {
 	spec <- matrix(c("foo", "h", 0, "logical"), ncol = 4, byrow = TRUE)
-	expect_equal(getopt(spec, c("-h")), sort_list(list(ARGS = character(0), foo = TRUE)))
+	expect_equal(getopt(spec, c("-h")), sort_list(list(foo = TRUE)), ignore_attr = TRUE)
 
 	spec <- matrix(c("foo", "h", 0, "logical", "help", "h", 0, "logical"), ncol = 4, byrow = TRUE)
 	expect_error(getopt(spec, c("-h")), "redundant short names for flags")
@@ -259,7 +292,7 @@ test_that("tests to get coverage up", {
 
 	# expect_error(getopt(spec, c("--foo", "4")), 'long flag "foo" accepts no arguments') # nolint
 
-	expect_equal(getopt(spec, "--biz", "4"), sort_list(list(ARGS = character(0), biz = TRUE)))
+	expect_equal(getopt(spec, "--biz", "4"), sort_list(list(biz = TRUE)), ignore_attr = TRUE)
 
 	expect_warning(getopt(spec, c("-n", "bar")), paste("double expected, got", dQuote("bar")))
 
@@ -291,4 +324,5 @@ test_that("debug output", {
 	expect_snapshot(. <- getopt(spec, c("--foo", "--bar", "baz"), debug = TRUE))
 	expect_snapshot(. <- getopt(spec, c("-fn", "2"), debug = TRUE))
 	expect_snapshot(. <- getopt(spec, c("-b", "-"), debug = TRUE))
+	expect_snapshot(. <- getopt(spec, c("--foo", "--", "file1.txt", "file2.txt"), debug = TRUE))
 })
