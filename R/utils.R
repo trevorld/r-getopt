@@ -127,7 +127,7 @@ na_omit <- function(x) {
 #' sort_list(l)
 #' @export
 sort_list <- function(unsorted_list) {
-	for (ii in seq(along = unsorted_list)) {
+	for (ii in seq_along(unsorted_list)) {
 		if (is.list(unsorted_list[[ii]])) {
 			unsorted_list[[ii]] <- sort_list(unsorted_list[[ii]])
 		}

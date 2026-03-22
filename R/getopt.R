@@ -287,11 +287,11 @@ getopt <- function(
 		action <- spec[rowmatch, COL_ACTION]
 
 		if (action == "count") {
-			result[long_name] <- (result[[long_name]] %||% 0L) + 1L
+			result[[long_name]] <- (result[[long_name]] %||% 0L) + 1L
 			i <- i + 1L
 			next
 		} else if (action %in% c("store_true", "store_false")) {
-			result[long_name] <- action != "store_false"
+			result[[long_name]] <- action != "store_false"
 			i <- i + 1L
 			next
 		} else {
@@ -334,7 +334,7 @@ getopt <- function(
 				stop(paste0('flag `', this_flag, '` requires an argument'))
 			} else {
 				# action == "store_optional"
-				result[long_name] <- TRUE
+				result[[long_name]] <- TRUE
 			}
 		}
 		i <- i + 1L
