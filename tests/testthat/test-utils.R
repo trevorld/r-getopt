@@ -63,3 +63,10 @@ test_that("get_Rscript_filename() returns NA when no --file= before --args", {
 	)
 	expect_equal(get_Rscript_filename(), NA_character_)
 })
+
+test_that("getfile() returns LITTLER_SCRIPT_PATH when set", {
+	local_mocked_bindings(
+		littler_script_path = function() "script.r"
+	)
+	expect_equal(getfile(), "script.r")
+})

@@ -40,6 +40,7 @@ New features
 Bug fixes and minor improvements
 --------------------------------
 
+* `getfile()` now also checks the `LITTLER_SCRIPT_PATH` environment variable so it works when called from `littler` (#16).
 * The `spec` argument of `getopt()` and `getusage()` may now also be a 4-5 column data frame
   (which will be silently coerced to a matrix).
 * The list returned by `getopt()` is now of S3 class `"getopt"` and no longer contains an `character(0L)` `ARGS` element.

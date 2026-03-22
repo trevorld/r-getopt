@@ -15,5 +15,6 @@ If not found (i.e. you are in a interactive session) returns \code{NA_character_
 }
 \description{
 \code{getfile()} returns the file name that \code{Rscript} is interpreting.
+Also supports \code{littler} via the \code{LITTLER_SCRIPT_PATH} environment variable.
 \code{get_Rscript_filename()} is an alias.
 }
