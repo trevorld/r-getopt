@@ -17,7 +17,7 @@ getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: RStudio CRAN mirror downloads
 
-.. image:: https://tinyverse.netlify.com/badge/getopt
+.. image:: https://tinyverse.netlify.app/badge/getopt
     :target: https://cran.r-project.org/package=getopt
     :alt: Number of dependencies
 
