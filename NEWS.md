@@ -1,5 +1,5 @@
-getopt 1.21.0 (development)
-===========================
+getopt 1.21.1
+=============
 
 Breaking changes
 ----------------
