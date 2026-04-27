@@ -2,13 +2,13 @@ Encoding: UTF-8
 Package: getopt
 Type: Package
 Title: C-Like 'getopt' Behavior
-Version: 1.21.0-4
+Version: 1.21.1
 Authors@R: c(person("Trevor L.", "Davis", role=c("aut", "cre"),
              email="trevor.l.davis@gmail.com",
              comment = c(ORCID = "0000-0001-6341-4639")),
     person("Allen", "Day", role="aut", comment="Original package author"),
     person("Roman", "Zenka", role="ctb"))
-URL: https://github.com/trevorld/r-getopt, https://trevorldavis.com/R/getopt
+URL: https://github.com/trevorld/r-getopt, https://trevorldavis.com/R/getopt/
 BugReports: https://github.com/trevorld/r-getopt/issues
 Description: Package designed to be used with Rscript to write
     '#!' shebang scripts that accept short and long flags/options.
